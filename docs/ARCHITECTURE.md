@@ -8,7 +8,7 @@ tested directly.
 
 ```
 cmd/sealtag/        entry point (main.go)
-internal/cli/          cobra commands: detect, plan, scan, version
+internal/cli/          cobra commands: detect, plan, scan, check, version
 internal/ecosystem/    the Ecosystem interface and the shared Package type
 internal/ecosystem/npm     package.json
 internal/ecosystem/pypi    pyproject.toml
@@ -32,7 +32,16 @@ type Ecosystem interface {
 }
 ```
 
-Later milestones add methods such as `Files`, `SetVersion` and `Publish`. Adding a new
+Optional abilities are separate small interfaces, so ecosystems can add them one at a
+time. The first is `Packer`:
+
+```go
+type Packer interface {
+    ShippedFiles(dir string) ([]File, error) // exactly what a publish would upload
+}
+```
+
+Later milestones add `SetVersion` and `Publish` the same way. Adding a new
 registry means adding one package that implements the interface. Nothing else changes.
 
 ## Data flow (milestone 1)

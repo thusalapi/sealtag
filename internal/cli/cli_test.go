@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -82,5 +83,37 @@ func TestScanFindsAndAllows(t *testing.T) {
 	}
 	if len(res.Findings) != 0 || len(res.Allowed) != 1 {
 		t.Errorf("findings %d allowed %d", len(res.Findings), len(res.Allowed))
+	}
+}
+
+func TestCheckNpmPackage(t *testing.T) {
+	if _, err := exec.LookPath("npm"); err != nil {
+		t.Skip("npm not installed")
+	}
+	dir := t.TempDir()
+	os.WriteFile(filepath.Join(dir, "package.json"), []byte(`{"name":"pk","version":"1.0.0"}`), 0o644)
+	os.WriteFile(filepath.Join(dir, "index.js"), []byte("module.exports = 1\n"), 0o644)
+	// No "files" field and no .npmignore: npm would publish this .env file.
+	os.WriteFile(filepath.Join(dir, ".env"), []byte("X=1\n"), 0o644)
+
+	out, err := run(t, "check", "--json", "-C", dir)
+	if !errors.Is(err, ErrCheckFailed) {
+		t.Fatalf("expected check to fail, got %v\n%s", err, out)
+	}
+	var res []PackageCheck
+	if err := json.Unmarshal([]byte(out), &res); err != nil {
+		t.Fatal(err)
+	}
+	if len(res) != 1 || res[0].Status != "findings" || res[0].Findings[0].File != ".env" {
+		t.Errorf("unexpected result: %+v", res)
+	}
+}
+
+func TestHumanSize(t *testing.T) {
+	cases := map[int64]string{0: "0 B", 1023: "1023 B", 1024: "1.0 KiB", 5 << 20: "5.0 MiB"}
+	for n, want := range cases {
+		if got := humanSize(n); got != want {
+			t.Errorf("humanSize(%d) = %q, want %q", n, got, want)
+		}
 	}
 }

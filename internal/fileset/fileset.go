@@ -17,15 +17,16 @@ import (
 // List returns paths relative to root, using forward slashes, sorted.
 // skipDir is used only by the fallback walk.
 func List(root string, skipDir func(string) bool) ([]string, error) {
-	if files, ok := gitFiles(root); ok {
+	if files, ok := GitFiles(root); ok {
 		return filterSkipped(files, skipDir), nil
 	}
 	return walk(root, skipDir)
 }
 
-// gitFiles lists tracked files plus untracked files that are not ignored.
+// GitFiles lists tracked files plus untracked files that are not ignored, relative
+// to root. ok is false when root is not inside a git repository.
 // Untracked files matter: a new .env that was never committed can still be packed.
-func gitFiles(root string) ([]string, bool) {
+func GitFiles(root string) ([]string, bool) {
 	cmd := exec.Command("git", "ls-files", "-z", "--cached", "--others", "--exclude-standard")
 	cmd.Dir = root
 	out, err := cmd.Output()

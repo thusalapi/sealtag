@@ -1,0 +1,175 @@
+package cli
+
+import (
+	"errors"
+	"fmt"
+	"path"
+	"path/filepath"
+
+	"github.com/spf13/cobra"
+
+	"github.com/thusalapi/sealtag/internal/detect"
+	"github.com/thusalapi/sealtag/internal/ecosystem"
+	"github.com/thusalapi/sealtag/internal/scan"
+)
+
+// Size limits that trigger a warning. Large files in a package are usually build
+// output, test fixtures or media that were included by mistake.
+const (
+	warnFileSize  = 5 << 20  // 5 MiB
+	warnTotalSize = 50 << 20 // 50 MiB
+)
+
+// ErrCheckFailed is returned when any package has findings or unknown contents.
+var ErrCheckFailed = errors.New("check failed")
+
+// PackageCheck is the result for one package.
+type PackageCheck struct {
+	Package   ecosystem.Package `json:"package"`
+	Status    string            `json:"status"` // "ok", "findings" or "unknown"
+	Files     []ecosystem.File  `json:"files"`
+	TotalSize int64             `json:"total_size"`
+	Findings  []scan.Finding    `json:"findings"`
+	Allowed   []scan.Finding    `json:"allowed"`
+	Warnings  []string          `json:"warnings"`
+	Error     string            `json:"error,omitempty"`
+}
+
+func newCheckCmd(opts *options) *cobra.Command {
+	var allowUnknown, listFiles bool
+	cmd := &cobra.Command{
+		Use:   "check",
+		Short: "Show exactly which files each package would publish, and scan them",
+		Long: "check asks each registry's own rules which files a release would contain,\n" +
+			"then scans only those files for secrets and warns about large files.\n" +
+			"It fails when a package's contents cannot be determined, unless --allow-unknown is set.",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			pkgs, err := detect.Walk(opts.dir, detect.All())
+			if err != nil {
+				return err
+			}
+			allow, err := scan.LoadAllow(opts.dir)
+			if err != nil {
+				return err
+			}
+			var results []PackageCheck
+			failed := false
+			for _, p := range pkgs {
+				if p.Private {
+					continue
+				}
+				r := checkPackage(opts.dir, p, allow)
+				if r.Status == "findings" || (r.Status == "unknown" && !allowUnknown) {
+					failed = true
+				}
+				results = append(results, r)
+			}
+			if results == nil {
+				results = []PackageCheck{}
+			}
+			if opts.json {
+				if err := writeJSON(cmd.OutOrStdout(), results); err != nil {
+					return err
+				}
+			} else {
+				printCheck(cmd, results, listFiles)
+			}
+			if failed {
+				return ErrCheckFailed
+			}
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&allowUnknown, "allow-unknown", false, "do not fail when a package's file list cannot be determined")
+	cmd.Flags().BoolVar(&listFiles, "files", false, "print every file that would be published")
+	return cmd
+}
+
+func checkPackage(root string, p ecosystem.Package, allow []scan.AllowEntry) PackageCheck {
+	r := PackageCheck{Package: p, Status: "unknown", Files: []ecosystem.File{},
+		Findings: []scan.Finding{}, Allowed: []scan.Finding{}, Warnings: []string{}}
+	eco := detect.ByName(p.Ecosystem)
+	packer, ok := eco.(ecosystem.Packer)
+	if !ok {
+		r.Error = ecosystem.ErrNotSupported.Error()
+		return r
+	}
+	dir := filepath.Join(root, filepath.FromSlash(p.Dir))
+	files, err := packer.ShippedFiles(dir)
+	if err != nil {
+		r.Error = err.Error()
+		return r
+	}
+	r.Files = files
+	paths := make([]string, len(files))
+	for i, f := range files {
+		paths[i] = f.Path
+		r.TotalSize += f.Size
+		if f.Size > warnFileSize {
+			r.Warnings = append(r.Warnings, fmt.Sprintf("%s is %s", f.Path, humanSize(f.Size)))
+		}
+	}
+	if r.TotalSize > warnTotalSize {
+		r.Warnings = append(r.Warnings, fmt.Sprintf("package is %s in total", humanSize(r.TotalSize)))
+	}
+	findings, err := scan.Files(dir, paths)
+	if err != nil {
+		r.Error = err.Error()
+		return r
+	}
+	// Report paths relative to the repository root, so they match the allowlist.
+	for i := range findings {
+		findings[i].File = path.Join(p.Dir, findings[i].File)
+	}
+	kept, allowed := scan.Filter(findings, allow)
+	r.Findings, r.Allowed = nonNil(kept), nonNil(allowed)
+	r.Status = "ok"
+	if len(kept) > 0 {
+		r.Status = "findings"
+	}
+	return r
+}
+
+func printCheck(cmd *cobra.Command, results []PackageCheck, listFiles bool) {
+	if len(results) == 0 {
+		cmd.Println("No publishable packages found.")
+		return
+	}
+	for _, r := range results {
+		mark := map[string]string{"ok": "PASS", "findings": "FAIL", "unknown": "????"}[r.Status]
+		cmd.Printf("[%s] %s (%s) in %s\n", mark, r.Package.Name, r.Package.Ecosystem, r.Package.Dir)
+		if r.Error != "" {
+			cmd.Printf("       cannot list files: %s\n", r.Error)
+		} else {
+			cmd.Printf("       %d file(s), %s\n", len(r.Files), humanSize(r.TotalSize))
+		}
+		if listFiles {
+			for _, f := range r.Files {
+				cmd.Printf("         %-50s %s\n", f.Path, humanSize(f.Size))
+			}
+		}
+		for _, f := range r.Findings {
+			loc := f.File
+			if f.Line > 0 {
+				loc = fmt.Sprintf("%s:%d", f.File, f.Line)
+			}
+			cmd.Printf("       secret: %s  %s %s\n", loc, f.RuleID, f.Match)
+		}
+		for _, w := range r.Warnings {
+			cmd.Printf("       warning: %s\n", w)
+		}
+	}
+}
+
+func humanSize(n int64) string {
+	const unit = 1024
+	if n < unit {
+		return fmt.Sprintf("%d B", n)
+	}
+	div, exp := int64(unit), 0
+	for m := n / unit; m >= unit; m /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %ciB", float64(n)/float64(div), "KMGTPE"[exp])
+}

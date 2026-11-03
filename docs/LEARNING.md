@@ -31,6 +31,25 @@ Most leaked secrets have a recognisable shape. AWS access keys start with `AKIA`
 GitHub tokens start with `ghp_`, npm tokens start with `npm_`. A scanner matches these
 shapes with regular expressions. Generic secrets are harder and need entropy checks.
 
+## What npm actually publishes
+
+npm decides the file list from the `files` field in package.json, then `.npmignore`
+(or `.gitignore` if there is no `.npmignore`), plus files it always includes
+(`package.json`, `README`, `LICENSE`) and files it never includes (`.git`,
+`node_modules`). Without a `files` field, everything not ignored is published,
+including a stray `.env`. The only fully accurate answer comes from npm itself:
+`npm pack --dry-run --json`.
+
+`npm pack` also runs the package's `prepack` and `prepare` scripts. sealtag passes
+`--ignore-scripts` so that a "dry run" can never run someone else's code.
+
+## What a Go module zip contains
+
+The Go proxy builds a zip from the git commit for the tag. The rules live in
+`golang.org/x/mod/zip`: no `vendor/` folders, no nested modules (folders with their
+own `go.mod`), file names must be valid, and the zip must stay under 500 MB.
+`testdata/` *is* included, which surprises many people.
+
 ## To study next
 
 - Sigstore: keyless signing with short-lived certificates

@@ -19,6 +19,16 @@ func All() []ecosystem.Ecosystem {
 	return []ecosystem.Ecosystem{npm.Ecosystem{}, pypi.Ecosystem{}, cargo.Ecosystem{}, gomod.Ecosystem{}}
 }
 
+// ByName returns the ecosystem with the given id, or nil.
+func ByName(name string) ecosystem.Ecosystem {
+	for _, e := range All() {
+		if e.Name() == name {
+			return e
+		}
+	}
+	return nil
+}
+
 // SkipDir reports whether a directory below the root should never be searched.
 // These hold dependencies, build output or test fixtures, not the user's packages.
 func SkipDir(name string) bool {

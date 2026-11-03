@@ -34,7 +34,8 @@ go install github.com/thusalapi/sealtag/cmd/sealtag@latest
 
 sealtag detect               # list publishable packages
 sealtag plan --bump minor    # show what a release would do
-sealtag scan                 # look for secrets in files that would ship
+sealtag scan                 # look for secrets in the repository
+sealtag check --files        # exact files each package would publish, scanned
 ```
 
 ## Documentation

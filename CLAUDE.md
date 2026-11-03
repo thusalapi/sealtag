@@ -1,6 +1,6 @@
 # Notes for AI assistants working on this repo
 
-- Language: Go. Keep dependencies few. Current: cobra (CLI), BurntSushi/toml.
+- Language: Go. Keep dependencies few. Current: cobra (CLI), BurntSushi/toml, golang.org/x/mod.
 - Layout and the Ecosystem interface are described in docs/ARCHITECTURE.md.
 - Before finishing a work session, update:
   1. docs/ROADMAP.md checkboxes
