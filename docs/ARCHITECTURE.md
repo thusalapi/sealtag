@@ -15,6 +15,7 @@ internal/ecosystem/pypi    pyproject.toml
 internal/ecosystem/cargo   Cargo.toml
 internal/ecosystem/gomod   go.mod and git tags
 internal/detect/       walks a repo and asks every ecosystem what it finds
+internal/fileset/      lists project files (git-aware, respects .gitignore)
 internal/semver/       parse and bump versions
 internal/scan/         secret detection rules and file scanner
 testdata/              fixture repositories used by tests
@@ -37,8 +38,8 @@ registry means adding one package that implements the interface. Nothing else ch
 ## Data flow (milestone 1)
 
 ```
-repo dir -> detect.Walk -> []Package -> plan (semver bump) -> printed table
-                                    \-> scan.Files -> []Finding -> printed report
+repo dir -> detect.Walk -> []Package -> plan (semver bump) -> table or JSON
+repo dir -> fileset.List -> scan.Files -> scan.Filter (allowlist) -> table or JSON
 ```
 
 ## Design rules

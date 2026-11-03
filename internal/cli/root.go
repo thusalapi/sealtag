@@ -13,7 +13,8 @@ var (
 )
 
 type options struct {
-	dir string
+	dir  string
+	json bool
 }
 
 // NewRoot builds the root command with every subcommand attached.
@@ -27,6 +28,7 @@ func NewRoot() *cobra.Command {
 		SilenceErrors: true,
 	}
 	root.PersistentFlags().StringVarP(&opts.dir, "dir", "C", ".", "repository root to work in")
+	root.PersistentFlags().BoolVar(&opts.json, "json", false, "print machine-readable JSON")
 	root.AddCommand(newDetectCmd(opts), newPlanCmd(opts), newScanCmd(opts), newVersionCmd())
 	return root
 }

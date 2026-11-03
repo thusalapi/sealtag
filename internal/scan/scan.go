@@ -4,7 +4,6 @@ package scan
 import (
 	"bufio"
 	"bytes"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -37,41 +36,26 @@ var Rules = []Rule{
 
 // Finding is one suspected secret.
 type Finding struct {
-	File        string // relative to the scanned root, with forward slashes
-	Line        int    // 0 when the finding is about the file itself
-	RuleID      string
-	Description string
-	Match       string // redacted
+	File        string `json:"file"`           // relative to the root, forward slashes
+	Line        int    `json:"line,omitempty"` // 0 when the finding is about the file name
+	RuleID      string `json:"rule"`
+	Description string `json:"description"`
+	Match       string `json:"match,omitempty"` // redacted
 }
 
 const maxFileSize = 2 << 20 // 2 MiB. Larger files are almost never hand-written secrets.
 
-// Dir scans every file under root. skipDir decides which directories to leave out.
-func Dir(root string, skipDir func(name string) bool) ([]Finding, error) {
+// Files scans the given files. Paths are relative to root and use forward slashes.
+func Files(root string, files []string) ([]Finding, error) {
 	var out []Finding
-	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	for _, rel := range files {
+		fs, err := File(filepath.Join(root, filepath.FromSlash(rel)), rel)
 		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			if path != root && skipDir != nil && skipDir(d.Name()) {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-		if !d.Type().IsRegular() {
-			return nil
-		}
-		rel, _ := filepath.Rel(root, path)
-		rel = filepath.ToSlash(rel)
-		fs, err := File(path, rel)
-		if err != nil {
-			return err
+			return nil, err
 		}
 		out = append(out, fs...)
-		return nil
-	})
-	return out, err
+	}
+	return out, nil
 }
 
 // File scans one file. name is the path used in findings.

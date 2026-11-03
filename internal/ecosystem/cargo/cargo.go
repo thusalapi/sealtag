@@ -20,7 +20,7 @@ type Ecosystem struct{}
 func (Ecosystem) Name() string { return "cargo" }
 
 type manifest struct {
-	Package map[string]any `toml:"package"`
+	Package   map[string]any `toml:"package"`
 	Workspace struct {
 		Package struct {
 			Version string `toml:"version"`

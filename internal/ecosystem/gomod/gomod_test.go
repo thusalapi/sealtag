@@ -4,7 +4,7 @@ import "testing"
 
 func TestModulePath(t *testing.T) {
 	cases := map[string]string{
-		"module example.com/a\n\ngo 1.22\n":     "example.com/a",
+		"module example.com/a\n\ngo 1.22\n":      "example.com/a",
 		"// comment\nmodule \"example.com/b\"\n": "example.com/b",
 		"go 1.22\n":                              "",
 		"modulex example.com/c\n":                "",

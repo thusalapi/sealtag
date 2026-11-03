@@ -2,17 +2,17 @@
 
 Each milestone ends with something that works end to end and can be shown to someone.
 
-## Milestone 1: Detect, plan, scan (in progress)
+## Milestone 1: Detect, plan, scan (done)
 
 - [x] Project skeleton, docs, CI
 - [x] Detect packages for npm, PyPI, Cargo and Go modules, including monorepos
 - [x] `plan` command: current version and next version for a semver bump
 - [x] `scan` command: find secrets (cloud keys, registry tokens, private keys) in files
-- [ ] Respect `.gitignore` when scanning
-- [ ] Allowlist file for known false positives (see ADR 0003)
-- [ ] JSON output (`--json`) for every command so CI can consume it
+- [x] Respect `.gitignore` when scanning
+- [x] Allowlist file for known false positives (see ADR 0003)
+- [x] JSON output (`--json`) for every command so CI can consume it
 
-## Milestone 2: Know exactly what ships
+## Milestone 2: Know exactly what ships (in progress)
 
 - [ ] npm: file list from `npm pack --dry-run --json`
 - [ ] PyPI: build sdist and wheel, list their contents

@@ -3,13 +3,13 @@ package ecosystem
 
 // Package is one publishable unit found in a repository.
 type Package struct {
-	Ecosystem string // "npm", "pypi", "cargo" or "go"
-	Name      string
-	Version   string // empty when the version is not stored in the manifest
-	Dir       string // directory that holds the manifest
-	Manifest  string // path to the manifest file
-	Private   bool   // true when the manifest says the package must not be published
-	Note      string // human-readable detail, for example "version is dynamic"
+	Ecosystem string `json:"ecosystem"` // "npm", "pypi", "cargo" or "go"
+	Name      string `json:"name"`
+	Version   string `json:"version"`        // empty when not stored in the manifest
+	Dir       string `json:"dir"`            // directory that holds the manifest
+	Manifest  string `json:"manifest"`       // path to the manifest file
+	Private   bool   `json:"private"`        // true when it must not be published
+	Note      string `json:"note,omitempty"` // detail, for example "version is dynamic"
 }
 
 // Ecosystem is implemented once per registry. See docs/decisions/0002.

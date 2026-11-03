@@ -19,6 +19,12 @@ func newDetectCmd(opts *options) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if opts.json {
+				if pkgs == nil {
+					pkgs = []ecosystem.Package{}
+				}
+				return writeJSON(cmd.OutOrStdout(), pkgs)
+			}
 			if len(pkgs) == 0 {
 				cmd.Println("No packages found.")
 				return nil

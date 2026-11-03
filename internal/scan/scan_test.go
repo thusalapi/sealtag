@@ -65,7 +65,7 @@ func TestFileNames(t *testing.T) {
 	}
 }
 
-func TestDirSkipsAndBinary(t *testing.T) {
+func TestFilesSkipsBinary(t *testing.T) {
 	root := t.TempDir()
 	write := func(rel string, data []byte) {
 		p := filepath.Join(root, rel)
@@ -76,9 +76,8 @@ func TestDirSkipsAndBinary(t *testing.T) {
 	}
 	secret := []byte(fake("gh"+"p_", 40))
 	write("src/config.js", secret)
-	write("node_modules/dep/index.js", secret)              // skipped directory
-	write("img.bin", append([]byte{0, 1, 2}, secret...))  // binary file
-	fs, err := Dir(root, func(n string) bool { return n == "node_modules" })
+	write("img.bin", append([]byte{0, 1, 2}, secret...)) // binary file
+	fs, err := Files(root, []string{"src/config.js", "img.bin"})
 	if err != nil {
 		t.Fatal(err)
 	}
