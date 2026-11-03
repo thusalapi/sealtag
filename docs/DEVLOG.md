@@ -3,6 +3,22 @@
 Newest entry first. One entry per work session: what was done, what was learned,
 what is next.
 
+## 2026-11-03: PyPI file listing, milestone 2 done
+
+**Done**
+- `check` now builds Python packages with uv and scans the files inside the sdist
+  and the wheel (ADR 0005). All four ecosystems pass `check` with real tools on
+  Windows.
+- Files read from archives are scanned in memory, so generated files like
+  `PKG-INFO` are covered too.
+
+**Learned**
+- hatchling put a stray `.env` into an sdist when there was no `.gitignore`. This is
+  now a test and a good demo for the README.
+
+**Next**
+- Milestone 3: parse Conventional Commits and choose the bump automatically.
+
 ## 2026-11-03: Rename, finish milestone 1, start milestone 2
 
 **Done**

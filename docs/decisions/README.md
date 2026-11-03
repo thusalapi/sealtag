@@ -9,3 +9,4 @@ for each decision. Never edit an accepted decision. Write a new one that replace
 | [0002](0002-ecosystem-interface.md) | One interface per registry ecosystem | accepted |
 | [0003](0003-secret-scan-before-publish.md) | Scan for secrets before any publish | accepted |
 | [0004](0004-rename-to-sealtag.md) | Rename the project from shipwright to sealtag | accepted |
+| [0005](0005-build-python-packages-to-list-files.md) | Build Python packages to learn what they contain | accepted |

@@ -50,6 +50,17 @@ The Go proxy builds a zip from the git commit for the tag. The rules live in
 own `go.mod`), file names must be valid, and the zip must stay under 500 MB.
 `testdata/` *is* included, which surprises many people.
 
+## What a Python package contains
+
+A Python release usually has two files. The **sdist** (`.tar.gz`) is the source code
+plus metadata. The **wheel** (`.whl`, really a zip) is ready to install. PyPI and
+tools like uv build the wheel *from the sdist*, so anything in the sdist matters.
+
+Which files go in is decided by the build backend named in `pyproject.toml`. For
+example, hatchling includes everything that is not ignored by `.gitignore`. In a
+folder without a `.gitignore`, a stray `.env` ends up in the sdist. sealtag's tests
+prove this with a real build.
+
 ## To study next
 
 - Sigstore: keyless signing with short-lived certificates

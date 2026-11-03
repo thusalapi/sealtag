@@ -12,15 +12,15 @@ Each milestone ends with something that works end to end and can be shown to som
 - [x] Allowlist file for known false positives (see ADR 0003)
 - [x] JSON output (`--json`) for every command so CI can consume it
 
-## Milestone 2: Know exactly what ships (in progress)
+## Milestone 2: Know exactly what ships (done)
 
 - [x] npm: file list from `npm pack --dry-run --json --ignore-scripts`
-- [ ] PyPI: build sdist and wheel, list their contents
+- [x] PyPI: build sdist and wheel with uv, scan the bytes inside the archives
 - [x] Cargo: `cargo package --list`, with generated files marked
 - [x] Go: module zip rules via golang.org/x/mod/zip, limited to git-tracked files
 - [x] `check` command: file list plus secret scan plus size warnings
 
-## Milestone 3: Versions and changelogs
+## Milestone 3: Versions and changelogs (in progress)
 
 - [ ] Read Conventional Commits since the last tag
 - [ ] Decide the bump automatically (fix = patch, feat = minor, breaking = major)

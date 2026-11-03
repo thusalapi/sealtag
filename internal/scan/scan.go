@@ -40,10 +40,12 @@ type Finding struct {
 	Line        int    `json:"line,omitempty"` // 0 when the finding is about the file name
 	RuleID      string `json:"rule"`
 	Description string `json:"description"`
-	Match       string `json:"match,omitempty"` // redacted
+	Match       string `json:"match,omitempty"`    // redacted
+	Artifact    string `json:"artifact,omitempty"` // set when found inside a built archive
 }
 
-const maxFileSize = 2 << 20 // 2 MiB. Larger files are almost never hand-written secrets.
+// MaxFileSize is the largest file whose content is scanned: 2 MiB.
+const MaxFileSize = 2 << 20 // Larger files are almost never hand-written secrets.
 
 // Files scans the given files. Paths are relative to root and use forward slashes.
 func Files(root string, files []string) ([]Finding, error) {
@@ -68,24 +70,37 @@ func File(path, name string) ([]Finding, error) {
 	if err != nil {
 		return nil, err
 	}
-	if info.Size() > maxFileSize {
+	if info.Size() > MaxFileSize {
 		return out, nil
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	if isBinary(data) {
-		return out, nil
+	return append(out, contentIfText(data, name)...), nil
+}
+
+// Bytes scans a file that is already in memory, such as one read from an archive.
+func Bytes(data []byte, name string) []Finding {
+	var out []Finding
+	if f := checkName(name); f != nil {
+		out = append(out, *f)
 	}
-	return append(out, Content(data, name)...), nil
+	return append(out, contentIfText(data, name)...)
+}
+
+func contentIfText(data []byte, name string) []Finding {
+	if len(data) > MaxFileSize || isBinary(data) {
+		return nil
+	}
+	return Content(data, name)
 }
 
 // Content applies every rule to data, line by line.
 func Content(data []byte, name string) []Finding {
 	var out []Finding
 	sc := bufio.NewScanner(bytes.NewReader(data))
-	sc.Buffer(make([]byte, 0, 64*1024), maxFileSize)
+	sc.Buffer(make([]byte, 0, 64*1024), MaxFileSize)
 	for n := 1; sc.Scan(); n++ {
 		line := sc.Text()
 		for _, r := range Rules {

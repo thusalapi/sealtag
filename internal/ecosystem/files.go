@@ -9,6 +9,12 @@ type File struct {
 	// Generated is true for files the registry tool writes into the archive itself,
 	// such as Cargo.toml.orig. They are not on disk, so they cannot be scanned.
 	Generated bool `json:"generated,omitempty"`
+	// Artifact names the built archive the file came from (for example a wheel),
+	// when the ecosystem had to build the package to know its contents.
+	Artifact string `json:"artifact,omitempty"`
+	// Data holds the file content read from the artifact, so the scan checks the
+	// bytes that really ship. Nil when the file is read from disk instead.
+	Data []byte `json:"-"`
 }
 
 // Packer is implemented by ecosystems that can say exactly which files a release
