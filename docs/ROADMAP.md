@@ -16,7 +16,7 @@ Each milestone ends with something that works end to end and can be shown to som
 
 - [x] npm: file list from `npm pack --dry-run --json --ignore-scripts`
 - [ ] PyPI: build sdist and wheel, list their contents
-- [ ] Cargo: `cargo package --list`
+- [x] Cargo: `cargo package --list`, with generated files marked
 - [x] Go: module zip rules via golang.org/x/mod/zip, limited to git-tracked files
 - [x] `check` command: file list plus secret scan plus size warnings
 

@@ -50,6 +50,9 @@ sealtag check --files        # exact files each package would publish, scanned
 
 ## Development
 
+Needs Go 1.26 or newer. npm and cargo are optional and only used for the real-tool
+tests and the `check` command.
+
 ```bash
 make build   # builds ./bin/sealtag
 make test    # runs all tests

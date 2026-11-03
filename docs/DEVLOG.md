@@ -15,13 +15,20 @@ what is next.
   of only those files, and warnings for large files.
 - In-process CLI tests, including one that runs the real npm.
 
+- Cargo file list via `cargo package --list`. Tested against real cargo on Windows.
+- Installed Go 1.27.3 on Windows (checksum verified) so sealtag builds and tests
+  natively there, not only in Linux.
+
 **Learned**
 - `npm pack` runs lifecycle scripts unless told not to.
+- `cargo package --list` names files that are not on disk (`Cargo.toml.orig`,
+  `.cargo_vcs_info.json`, the workspace `Cargo.lock`). Testing with the real tool
+  found this. A mock would have hidden it.
 - Go module zips include `testdata/`.
 - `modzip.CheckDir` returns paths joined with the directory, not relative ones.
 
 **Next**
-- Cargo file list (`cargo package --list`) and PyPI (build sdist and wheel, list contents).
+- PyPI file list (build sdist and wheel, list contents).
 - Then milestone 3: Conventional Commits and automatic version bumps.
 
 ## 2026-11-03: Project start

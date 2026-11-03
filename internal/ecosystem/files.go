@@ -6,6 +6,9 @@ import "errors"
 type File struct {
 	Path string `json:"path"` // relative to the package directory, forward slashes
 	Size int64  `json:"size"`
+	// Generated is true for files the registry tool writes into the archive itself,
+	// such as Cargo.toml.orig. They are not on disk, so they cannot be scanned.
+	Generated bool `json:"generated,omitempty"`
 }
 
 // Packer is implemented by ecosystems that can say exactly which files a release
