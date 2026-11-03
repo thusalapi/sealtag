@@ -1,0 +1,48 @@
+# Architecture
+
+## Overview
+
+shipwright is a single Go binary. The CLI layer is thin. Each command calls into
+packages under `internal/` that have no knowledge of the terminal, so they can be
+tested directly.
+
+```
+cmd/shipwright/        entry point (main.go)
+internal/cli/          cobra commands: detect, plan, scan, version
+internal/ecosystem/    the Ecosystem interface and the shared Package type
+internal/ecosystem/npm     package.json
+internal/ecosystem/pypi    pyproject.toml
+internal/ecosystem/cargo   Cargo.toml
+internal/ecosystem/gomod   go.mod and git tags
+internal/detect/       walks a repo and asks every ecosystem what it finds
+internal/semver/       parse and bump versions
+internal/scan/         secret detection rules and file scanner
+testdata/              fixture repositories used by tests
+```
+
+## Key abstraction: Ecosystem
+
+Every registry is an implementation of one interface:
+
+```go
+type Ecosystem interface {
+    Name() string                          // "npm", "pypi", "cargo", "go"
+    Detect(dir string) (*Package, error)   // nil if this dir has no package of this kind
+}
+```
+
+Later milestones add methods such as `Files`, `SetVersion` and `Publish`. Adding a new
+registry means adding one package that implements the interface. Nothing else changes.
+
+## Data flow (milestone 1)
+
+```
+repo dir -> detect.Walk -> []Package -> plan (semver bump) -> printed table
+                                    \-> scan.Files -> []Finding -> printed report
+```
+
+## Design rules
+
+1. No network calls in detect, plan or scan. They must work offline and in tests.
+2. Every command will support `--json` so CI and other tools can use the output.
+3. Fail closed: if shipwright cannot tell what will ship, it refuses to publish.

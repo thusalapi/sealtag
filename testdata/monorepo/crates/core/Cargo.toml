@@ -1,0 +1,4 @@
+[package]
+name = "acme-core"
+version.workspace = true
+edition = "2021"
