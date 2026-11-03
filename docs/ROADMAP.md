@@ -22,10 +22,12 @@ Each milestone ends with something that works end to end and can be shown to som
 
 ## Milestone 3: Versions and changelogs (in progress)
 
-- [ ] Read Conventional Commits since the last tag
-- [ ] Decide the bump automatically (fix = patch, feat = minor, breaking = major)
+- [x] Read Conventional Commits since each package's last tag (ADR 0006)
+- [x] Decide the bump automatically (fix = patch, feat = minor, breaking = major)
 - [ ] Write the new version into each manifest
-- [ ] Generate `CHANGELOG.md`
+- [x] `changelog` command prints release notes
+- [ ] Write release notes into `CHANGELOG.md`
+- [ ] Read dynamic Python versions (for example hatch `[tool.hatch.version]`)
 
 ## Milestone 4: Trusted publishing
 

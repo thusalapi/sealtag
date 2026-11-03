@@ -8,5 +8,7 @@
   3. docs/decisions/ with a new ADR for any significant choice
   4. docs/LEARNING.md with any new concept explained in plain words
 - Run `go vet ./...` and `go test ./...` before committing.
+- Commit messages must follow Conventional Commits (`feat:`, `fix:`, `docs:`, ...).
+  sealtag reads its own history to plan its releases.
 - No network calls in detect, plan or scan code paths.
 - Writing style for docs: plain words, short sentences, no em dashes.

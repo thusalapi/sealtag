@@ -3,6 +3,26 @@
 Newest entry first. One entry per work session: what was done, what was learned,
 what is next.
 
+## 2026-11-03: Automatic version bumps from commits
+
+**Done**
+- `internal/commits` parses Conventional Commits and picks the bump.
+- `internal/gitlog` reads commits and tags per package, excluding nested packages.
+- `internal/release` plans each package: last tag, releasable commits, next version,
+  next tag (ADR 0006).
+- `plan` now defaults to `--bump auto`. New `changelog` command prints release notes.
+- Tests build throwaway git repositories to check monorepo scoping and tag handling.
+
+**Learned**
+- Go tags inside a folder keep their "v" after the prefix is stripped. Easy to lose.
+- sealtag's own early commits were not conventional, so `sealtag plan` on itself
+  finds nothing to release. From now on this repo uses Conventional Commits.
+
+**Next**
+- Write versions into manifests and release notes into `CHANGELOG.md`
+  (a `version` or `prepare` command).
+- Then milestone 4: trusted publishing.
+
 ## 2026-11-03: PyPI file listing, milestone 2 done
 
 **Done**

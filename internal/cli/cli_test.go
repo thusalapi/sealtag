@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/thusalapi/sealtag/internal/release"
 )
 
 // run executes the CLI in-process and returns stdout and the error.
@@ -42,7 +44,7 @@ func TestPlanJSON(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var p Plan
+	var p release.Plan
 	if err := json.Unmarshal([]byte(out), &p); err != nil {
 		t.Fatal(err)
 	}

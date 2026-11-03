@@ -22,7 +22,8 @@ but each one is configured differently.
 
 1. **Detects** every publishable package in a repository (`package.json`,
    `pyproject.toml`, `Cargo.toml`, `go.mod`).
-2. **Plans** the release: current version, next version and target registry.
+2. **Plans** the release: reads Conventional Commits since each package's last tag
+   and picks the next version (fix = patch, feat = minor, breaking = major).
 3. **Checks** what will ship: lists the files and scans them for secrets before
    anything leaves your machine.
 4. **Publishes** with trusted publishing only (planned), with signed provenance.
@@ -33,7 +34,8 @@ but each one is configured differently.
 go install github.com/thusalapi/sealtag/cmd/sealtag@latest
 
 sealtag detect               # list publishable packages
-sealtag plan --bump minor    # show what a release would do
+sealtag plan                 # next version of each package, from Conventional Commits
+sealtag changelog            # release notes for the pending release
 sealtag scan                 # look for secrets in the repository
 sealtag check --files        # exact files each package would publish, scanned
 ```

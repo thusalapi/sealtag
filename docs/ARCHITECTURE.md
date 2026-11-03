@@ -8,7 +8,7 @@ tested directly.
 
 ```
 cmd/sealtag/        entry point (main.go)
-internal/cli/          cobra commands: detect, plan, scan, check, version
+internal/cli/          cobra commands: detect, plan, scan, check, changelog, version
 internal/ecosystem/    the Ecosystem interface and the shared Package type
 internal/ecosystem/npm     package.json
 internal/ecosystem/pypi    pyproject.toml
@@ -17,6 +17,9 @@ internal/ecosystem/gomod   go.mod and git tags
 internal/detect/       walks a repo and asks every ecosystem what it finds
 internal/fileset/      lists project files (git-aware, respects .gitignore)
 internal/semver/       parse and bump versions
+internal/commits/      parse Conventional Commits, choose a bump
+internal/gitlog/       read commits and tags for one package
+internal/release/      plan each package's next version and render release notes
 internal/scan/         secret detection rules and file scanner
 testdata/              fixture repositories used by tests
 ```
@@ -44,10 +47,10 @@ type Packer interface {
 Later milestones add `SetVersion` and `Publish` the same way. Adding a new
 registry means adding one package that implements the interface. Nothing else changes.
 
-## Data flow (milestone 1)
+## Data flow
 
 ```
-repo dir -> detect.Walk -> []Package -> plan (semver bump) -> table or JSON
+repo dir -> detect.Walk -> []Package -> release.Build (tags + commits -> bump) -> table or JSON
 repo dir -> fileset.List -> scan.Files -> scan.Filter (allowlist) -> table or JSON
 ```
 

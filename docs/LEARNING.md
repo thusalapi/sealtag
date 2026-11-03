@@ -61,6 +61,23 @@ example, hatchling includes everything that is not ignored by `.gitignore`. In a
 folder without a `.gitignore`, a stray `.env` ends up in the sdist. sealtag's tests
 prove this with a real build.
 
+## Conventional Commits
+
+A commit message format that tools can read: `type(scope)!: description`.
+`fix` means a bug fix (patch), `feat` a new feature (minor), and a `!` or a
+`BREAKING CHANGE:` footer means a breaking change (major). Other types such as
+`docs`, `chore` and `ci` do not cause a release. Example: `feat(cli): add --json`.
+
+Before 1.0.0, most tools (and Cargo's own compatibility rules) treat the minor
+number as the "breaking" number, so a breaking change goes from 0.4.2 to 0.5.0.
+
+## Reading git history from a program
+
+`git log --format=...` can print any fields with custom separators. sealtag uses the
+ASCII "unit separator" (0x1F) between fields and "record separator" (0x1E) between
+commits, because those characters never appear in normal messages. A pathspec such
+as `-- packages/a ':(exclude)packages/a/plugin'` limits the log to one package.
+
 ## To study next
 
 - Sigstore: keyless signing with short-lived certificates
