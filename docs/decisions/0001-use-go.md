@@ -1,11 +1,11 @@
-# 0001: Write shipwright in Go
+# 0001: Write sealtag in Go
 
 - Status: accepted
 - Date: 2026-11-03
 
 ## Context
 
-shipwright is a CLI that runs on developer laptops and in CI on Linux, macOS and
+sealtag is a CLI that runs on developer laptops and in CI on Linux, macOS and
 Windows. Users should not need a language runtime installed to use it.
 
 ## Decision

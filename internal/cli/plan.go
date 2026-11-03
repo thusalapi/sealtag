@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/thusalapi/shipwright/internal/detect"
-	"github.com/thusalapi/shipwright/internal/semver"
+	"github.com/thusalapi/sealtag/internal/detect"
+	"github.com/thusalapi/sealtag/internal/semver"
 )
 
 var registries = map[string]string{

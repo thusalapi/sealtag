@@ -2,12 +2,12 @@
 
 ## Overview
 
-shipwright is a single Go binary. The CLI layer is thin. Each command calls into
+sealtag is a single Go binary. The CLI layer is thin. Each command calls into
 packages under `internal/` that have no knowledge of the terminal, so they can be
 tested directly.
 
 ```
-cmd/shipwright/        entry point (main.go)
+cmd/sealtag/        entry point (main.go)
 internal/cli/          cobra commands: detect, plan, scan, version
 internal/ecosystem/    the Ecosystem interface and the shared Package type
 internal/ecosystem/npm     package.json
@@ -45,4 +45,4 @@ repo dir -> detect.Walk -> []Package -> plan (semver bump) -> printed table
 
 1. No network calls in detect, plan or scan. They must work offline and in tests.
 2. Every command will support `--json` so CI and other tools can use the output.
-3. Fail closed: if shipwright cannot tell what will ship, it refuses to publish.
+3. Fail closed: if sealtag cannot tell what will ship, it refuses to publish.

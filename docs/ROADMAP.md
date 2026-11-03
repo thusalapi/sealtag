@@ -42,6 +42,6 @@ Each milestone ends with something that works end to end and can be shown to som
 
 ## Milestone 6: Launch
 
-- [ ] Reusable GitHub Action (`uses: thusalapi/shipwright@v1`)
-- [ ] Release shipwright with shipwright
+- [ ] Reusable GitHub Action (`uses: thusalapi/sealtag@v1`)
+- [ ] Release sealtag with sealtag
 - [ ] Docs site and launch blog post

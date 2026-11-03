@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/thusalapi/shipwright/internal/ecosystem"
+	"github.com/thusalapi/sealtag/internal/ecosystem"
 )
 
 // Ecosystem implements ecosystem.Ecosystem for npm.

@@ -1,4 +1,4 @@
-// Package cli wires the shipwright commands together. Keep logic out of this package:
+// Package cli wires the sealtag commands together. Keep logic out of this package:
 // commands should only parse flags, call internal packages and print results.
 package cli
 
@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Set at build time with -ldflags "-X github.com/thusalapi/shipwright/internal/cli.version=..."
+// Set at build time with -ldflags "-X github.com/thusalapi/sealtag/internal/cli.version=..."
 var (
 	version = "dev"
 	commit  = "none"
@@ -20,9 +20,9 @@ type options struct {
 func NewRoot() *cobra.Command {
 	opts := &options{}
 	root := &cobra.Command{
-		Use:           "shipwright",
+		Use:           "sealtag",
 		Short:         "Publish packages to npm, PyPI, crates.io and Go safely",
-		Long:          "shipwright detects publishable packages, plans releases and checks for leaked secrets\nbefore anything is published. Publishing with trusted publishing is coming soon.",
+		Long:          "sealtag detects publishable packages, plans releases and checks for leaked secrets\nbefore anything is published. Publishing with trusted publishing is coming soon.",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
@@ -34,9 +34,9 @@ func NewRoot() *cobra.Command {
 func newVersionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
-		Short: "Print the shipwright version",
+		Short: "Print the sealtag version",
 		Run: func(cmd *cobra.Command, _ []string) {
-			cmd.Printf("shipwright %s (%s)\n", version, commit)
+			cmd.Printf("sealtag %s (%s)\n", version, commit)
 		},
 	}
 }

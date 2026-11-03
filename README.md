@@ -1,6 +1,8 @@
-# shipwright
+# sealtag
 
 **Publish a package to npm, PyPI, crates.io and Go from one config, with no stored tokens.**
+
+The name: sealtag *seals* each release (checks it, signs it) before it *tags* and publishes it.
 
 > Status: early development (milestone 1). Not ready for real releases yet.
 
@@ -16,7 +18,7 @@ Registries now support **trusted publishing**: CI proves who it is with a short-
 OIDC token, so nothing long-lived is stored. npm, PyPI and crates.io all support it,
 but each one is configured differently.
 
-## What shipwright does
+## What sealtag does
 
 1. **Detects** every publishable package in a repository (`package.json`,
    `pyproject.toml`, `Cargo.toml`, `go.mod`).
@@ -28,11 +30,11 @@ but each one is configured differently.
 ## Quick start
 
 ```bash
-go install github.com/thusalapi/shipwright/cmd/shipwright@latest
+go install github.com/thusalapi/sealtag/cmd/sealtag@latest
 
-shipwright detect          # list publishable packages
-shipwright plan --bump minor   # show what a release would do
-shipwright scan            # look for secrets in files that would ship
+sealtag detect               # list publishable packages
+sealtag plan --bump minor    # show what a release would do
+sealtag scan                 # look for secrets in files that would ship
 ```
 
 ## Documentation
@@ -48,7 +50,7 @@ shipwright scan            # look for secrets in files that would ship
 ## Development
 
 ```bash
-make build   # builds ./bin/shipwright
+make build   # builds ./bin/sealtag
 make test    # runs all tests
 make lint    # go vet
 ```

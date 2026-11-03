@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/thusalapi/shipwright/internal/ecosystem"
-	"github.com/thusalapi/shipwright/internal/ecosystem/cargo"
-	"github.com/thusalapi/shipwright/internal/ecosystem/gomod"
-	"github.com/thusalapi/shipwright/internal/ecosystem/npm"
-	"github.com/thusalapi/shipwright/internal/ecosystem/pypi"
+	"github.com/thusalapi/sealtag/internal/ecosystem"
+	"github.com/thusalapi/sealtag/internal/ecosystem/cargo"
+	"github.com/thusalapi/sealtag/internal/ecosystem/gomod"
+	"github.com/thusalapi/sealtag/internal/ecosystem/npm"
+	"github.com/thusalapi/sealtag/internal/ecosystem/pypi"
 )
 
 // All returns every supported ecosystem.

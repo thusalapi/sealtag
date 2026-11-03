@@ -1,5 +1,5 @@
 build:
-	go build -o bin/shipwright ./cmd/shipwright
+	go build -o bin/sealtag ./cmd/sealtag
 
 test:
 	go test ./...

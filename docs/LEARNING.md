@@ -1,6 +1,6 @@
 # Learning notes
 
-Concepts met while building shipwright, in plain words. Add to this as you go. These
+Concepts met while building sealtag, in plain words. Add to this as you go. These
 notes are also good material for blog posts and interview answers.
 
 ## Trusted publishing (OIDC)

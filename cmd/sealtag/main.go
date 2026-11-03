@@ -1,11 +1,11 @@
-// Command shipwright publishes packages to several registries safely.
+// Command sealtag publishes packages to several registries safely.
 package main
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/thusalapi/shipwright/internal/cli"
+	"github.com/thusalapi/sealtag/internal/cli"
 )
 
 func main() {

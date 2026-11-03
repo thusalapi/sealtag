@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/thusalapi/shipwright/internal/detect"
-	"github.com/thusalapi/shipwright/internal/ecosystem"
+	"github.com/thusalapi/sealtag/internal/detect"
+	"github.com/thusalapi/sealtag/internal/ecosystem"
 )
 
 func newDetectCmd(opts *options) *cobra.Command {

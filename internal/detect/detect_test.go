@@ -3,7 +3,7 @@ package detect
 import (
 	"testing"
 
-	"github.com/thusalapi/shipwright/internal/ecosystem"
+	"github.com/thusalapi/sealtag/internal/ecosystem"
 )
 
 func TestWalkMonorepo(t *testing.T) {

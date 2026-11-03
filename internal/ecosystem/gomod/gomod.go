@@ -15,8 +15,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/thusalapi/shipwright/internal/ecosystem"
-	"github.com/thusalapi/shipwright/internal/semver"
+	"github.com/thusalapi/sealtag/internal/ecosystem"
+	"github.com/thusalapi/sealtag/internal/semver"
 )
 
 // Ecosystem implements ecosystem.Ecosystem for Go modules.

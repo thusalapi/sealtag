@@ -1,4 +1,4 @@
-module github.com/thusalapi/shipwright
+module github.com/thusalapi/sealtag
 
 go 1.25.3
 

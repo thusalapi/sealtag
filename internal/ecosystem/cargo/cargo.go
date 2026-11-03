@@ -10,7 +10,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 
-	"github.com/thusalapi/shipwright/internal/ecosystem"
+	"github.com/thusalapi/sealtag/internal/ecosystem"
 )
 
 // Ecosystem implements ecosystem.Ecosystem for crates.io.

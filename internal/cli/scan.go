@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/thusalapi/shipwright/internal/detect"
-	"github.com/thusalapi/shipwright/internal/scan"
+	"github.com/thusalapi/sealtag/internal/detect"
+	"github.com/thusalapi/sealtag/internal/scan"
 )
 
 // ErrFindings makes the process exit non-zero so CI fails when secrets are found.
