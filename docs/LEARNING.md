@@ -78,6 +78,20 @@ ASCII "unit separator" (0x1F) between fields and "record separator" (0x1E) betwe
 commits, because those characters never appear in normal messages. A pathspec such
 as `-- packages/a ':(exclude)packages/a/plugin'` limits the log to one package.
 
+## Editing config files without reformatting them
+
+Reading a file into a struct and writing it back loses comments, key order and
+spacing. Release tools that do this create huge, noisy diffs. sealtag instead finds
+the exact byte range of one value and replaces only that. For JSON it walks the
+token stream with `json.Decoder` and `InputOffset()` to track depth, so a nested
+`"version"` inside `"engines"` is never touched.
+
+## Annotated vs lightweight git tags
+
+A lightweight tag is just a name for a commit. An annotated tag is a full git object
+with a tagger, date and message, and it can be signed. `git describe` and
+`git push --follow-tags` only consider annotated tags, so release tools should use them.
+
 ## To study next
 
 - Sigstore: keyless signing with short-lived certificates

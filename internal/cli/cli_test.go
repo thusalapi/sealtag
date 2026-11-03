@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/thusalapi/sealtag/internal/release"
+	"github.com/thusalapi/sealtag/internal/testutil"
 )
 
 // run executes the CLI in-process and returns stdout and the error.
@@ -117,5 +118,40 @@ func TestHumanSize(t *testing.T) {
 		if got := humanSize(n); got != want {
 			t.Errorf("humanSize(%d) = %q, want %q", n, got, want)
 		}
+	}
+}
+
+func TestPrepareCommitAndTag(t *testing.T) {
+	r := testutil.NewRepo(t)
+	r.Commit("chore: init", map[string]string{"package.json": "{\n  \"name\": \"lib\",\n  \"version\": \"1.0.0\"\n}\n"})
+	r.Git("tag", "v1.0.0")
+	r.Commit("feat: new thing", map[string]string{"index.js": "1"})
+
+	r.Write(map[string]string{"scratch.txt": "uncommitted"})
+	if _, err := run(t, "prepare", "--commit", "-C", r.Root); !errors.Is(err, ErrDirty) {
+		t.Fatalf("dirty tree: err = %v, want ErrDirty", err)
+	}
+	r.Git("rm", "-q", "--cached", "--ignore-unmatch", "scratch.txt")
+	os.Remove(filepath.Join(r.Root, "scratch.txt"))
+
+	out, err := run(t, "prepare", "--commit", "--date", "2026-11-03", "-C", r.Root)
+	if err != nil {
+		t.Fatalf("%v\n%s", err, out)
+	}
+	if got := r.Git("tag", "--points-at", "HEAD"); got != "v1.1.0" {
+		t.Errorf("tag on HEAD = %q", got)
+	}
+	if got := r.Git("log", "-1", "--format=%s"); got != "chore(release): lib 1.1.0" {
+		t.Errorf("commit message = %q", got)
+	}
+	if r.Git("status", "--porcelain") != "" {
+		t.Error("tree should be clean after --commit")
+	}
+	// The release commit is not releasable, so the next plan is empty.
+	out, _ = run(t, "plan", "--json", "-C", r.Root)
+	var p release.Plan
+	json.Unmarshal([]byte(out), &p)
+	if p.Releases[0].Next != "" || p.Releases[0].LastTag != "v1.1.0" {
+		t.Errorf("after release: %+v", p.Releases[0])
 	}
 }

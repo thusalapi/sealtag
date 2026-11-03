@@ -90,3 +90,29 @@ func git(dir string, args ...string) (string, error) {
 	}
 	return string(out), nil
 }
+
+// Dirty reports whether the work tree has uncommitted changes (ignored files aside).
+func Dirty(root string) (bool, error) {
+	out, err := git(root, "status", "--porcelain")
+	if err != nil {
+		return false, err
+	}
+	return strings.TrimSpace(out) != "", nil
+}
+
+// CommitFiles stages exactly the given files and commits them.
+func CommitFiles(root string, files []string, message string) error {
+	if _, err := git(root, append([]string{"add", "--"}, files...)...); err != nil {
+		return err
+	}
+	// No pathspec: commit only what is staged, never other tracked changes.
+	_, err := git(root, "commit", "-q", "-m", message)
+	return err
+}
+
+// Tag creates an annotated tag on HEAD. Annotated tags record who tagged and when,
+// and `git describe` ignores lightweight tags by default.
+func Tag(root, name, message string) error {
+	_, err := git(root, "tag", "-a", name, "-m", message)
+	return err
+}

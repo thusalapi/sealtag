@@ -17,7 +17,7 @@ func TestWalkMonorepo(t *testing.T) {
 		{Ecosystem: "cargo", Name: "acme-internal", Version: "0.1.0", Dir: "crates/internal", Private: true},
 		{Ecosystem: "go", Name: "github.com/acme/sdk", Dir: "go/sdk"},
 		{Ecosystem: "npm", Name: "@acme/web", Version: "2.4.1", Dir: "packages/web"},
-		{Ecosystem: "pypi", Name: "acme-client", Dir: "py"},
+		{Ecosystem: "pypi", Name: "acme-client", Version: "0.3.0", Dir: "py"},
 	}
 	if len(pkgs) != len(want) {
 		t.Fatalf("got %d packages, want %d: %+v", len(pkgs), len(want), pkgs)

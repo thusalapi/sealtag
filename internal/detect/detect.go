@@ -64,6 +64,9 @@ func Walk(root string, ecosystems []ecosystem.Ecosystem) ([]ecosystem.Package, e
 			}
 			p.Dir = rel(root, p.Dir)
 			p.Manifest = rel(root, p.Manifest)
+			if p.VersionFile != "" {
+				p.VersionFile = rel(root, filepath.FromSlash(p.VersionFile))
+			}
 			pkgs = append(pkgs, *p)
 		}
 		return nil

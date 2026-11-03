@@ -29,3 +29,10 @@ var ErrToolMissing = errors.New("required tool is not installed")
 
 // ErrNotSupported means sealtag cannot list files for this ecosystem yet.
 var ErrNotSupported = errors.New("file listing not supported for this ecosystem yet")
+
+// Versioner is implemented by ecosystems that store the version in a file.
+type Versioner interface {
+	// SetVersion writes version for the package and returns the files it changed,
+	// relative to the package directory's root (the repository root).
+	SetVersion(root string, p Package, version string) ([]string, error)
+}

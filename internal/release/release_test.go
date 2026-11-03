@@ -2,65 +2,31 @@ package release
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/thusalapi/sealtag/internal/detect"
 	"github.com/thusalapi/sealtag/internal/ecosystem"
+	"github.com/thusalapi/sealtag/internal/testutil"
 )
 
-// repo is a throwaway git repository for tests.
-type repo struct {
-	t    *testing.T
-	root string
-}
+type repo struct{ *testutil.Repo }
 
-func newRepo(t *testing.T) *repo {
-	t.Helper()
-	if _, err := exec.LookPath("git"); err != nil {
-		t.Skip("git not installed")
-	}
-	r := &repo{t: t, root: t.TempDir()}
-	r.git("init", "-q", "-b", "main")
-	return r
-}
+func newRepo(t *testing.T) *repo { return &repo{testutil.NewRepo(t)} }
 
-func (r *repo) git(args ...string) string {
-	r.t.Helper()
-	cmd := exec.Command("git", append([]string{"-c", "user.name=t", "-c", "user.email=t@example.com", "-c", "commit.gpgsign=false", "-c", "tag.gpgsign=false"}, args...)...)
-	cmd.Dir = r.root
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		r.t.Fatalf("git %v: %v\n%s", args, err, out)
-	}
-	return strings.TrimSpace(string(out))
-}
-
-// commit writes the files and commits them with the given message.
-func (r *repo) commit(msg string, files map[string]string) {
-	r.t.Helper()
-	for name, body := range files {
-		p := filepath.Join(r.root, filepath.FromSlash(name))
-		os.MkdirAll(filepath.Dir(p), 0o755)
-		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
-			r.t.Fatal(err)
-		}
-	}
-	r.git("add", "-A")
-	r.git("commit", "-q", "-m", msg)
-}
+func (r *repo) git(args ...string) string                  { return r.Git(args...) }
+func (r *repo) commit(msg string, files map[string]string) { r.Commit(msg, files) }
 
 func (r *repo) plan(bump string) Plan {
-	r.t.Helper()
-	pkgs, err := detect.Walk(r.root, detect.All())
+	r.T.Helper()
+	pkgs, err := detect.Walk(r.Root, detect.All())
 	if err != nil {
-		r.t.Fatal(err)
+		r.T.Fatal(err)
 	}
-	p, err := Build(r.root, pkgs, bump)
+	p, err := Build(r.Root, pkgs, bump)
 	if err != nil {
-		r.t.Fatal(err)
+		r.T.Fatal(err)
 	}
 	return p
 }

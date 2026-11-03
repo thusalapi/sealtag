@@ -5,11 +5,14 @@ package ecosystem
 type Package struct {
 	Ecosystem string `json:"ecosystem"` // "npm", "pypi", "cargo" or "go"
 	Name      string `json:"name"`
-	Version   string `json:"version"`        // empty when not stored in the manifest
-	Dir       string `json:"dir"`            // directory that holds the manifest
-	Manifest  string `json:"manifest"`       // path to the manifest file
-	Private   bool   `json:"private"`        // true when it must not be published
-	Note      string `json:"note,omitempty"` // detail, for example "version is dynamic"
+	Version   string `json:"version"`  // empty when not stored in the manifest
+	Dir       string `json:"dir"`      // directory that holds the manifest
+	Manifest  string `json:"manifest"` // path to the manifest file
+	Private   bool   `json:"private"`  // true when it must not be published
+	Note      string `json:"note,omitempty"`
+	// VersionFile is set when the version lives outside the manifest, for example a
+	// Python __init__.py. Relative to the walk root, like Manifest.
+	VersionFile string `json:"version_file,omitempty"` // detail, for example "version is dynamic"
 }
 
 // Ecosystem is implemented once per registry. See docs/decisions/0002.

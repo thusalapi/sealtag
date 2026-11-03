@@ -36,6 +36,7 @@ go install github.com/thusalapi/sealtag/cmd/sealtag@latest
 sealtag detect               # list publishable packages
 sealtag plan                 # next version of each package, from Conventional Commits
 sealtag changelog            # release notes for the pending release
+sealtag prepare --commit     # write versions + CHANGELOG.md, commit, tag
 sealtag scan                 # look for secrets in the repository
 sealtag check --files        # exact files each package would publish, scanned
 ```

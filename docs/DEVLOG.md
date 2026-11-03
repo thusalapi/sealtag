@@ -3,6 +3,25 @@
 Newest entry first. One entry per work session: what was done, what was learned,
 what is next.
 
+## 2026-11-03: prepare command, milestone 3 done
+
+**Done**
+- `internal/textedit`: change one value in JSON, TOML or a Python file without
+  reformatting anything else.
+- `Versioner` for npm (also package-lock.json), Cargo (including workspace-inherited
+  versions) and PyPI (`[project]`, Poetry, or a hatch `__version__` file).
+- Dynamic Python versions are now read, so `plan` knows their current version.
+- `prepare` writes versions and changelogs. `prepare --commit` commits only those
+  files and creates annotated tags, and refuses a dirty tree (ADR 0007).
+- Shared `testutil.Repo` helper for git-based tests.
+
+**Learned**
+- `git commit -- .` commits every tracked change under the path, not just what is
+  staged. The release commit must use no pathspec.
+
+**Next**
+- Milestone 4: trusted publishing from GitHub Actions. Needs the repo on GitHub.
+
 ## 2026-11-03: Automatic version bumps from commits
 
 **Done**

@@ -8,7 +8,7 @@ tested directly.
 
 ```
 cmd/sealtag/        entry point (main.go)
-internal/cli/          cobra commands: detect, plan, scan, check, changelog, version
+internal/cli/          cobra commands: detect, plan, scan, check, changelog, prepare, version
 internal/ecosystem/    the Ecosystem interface and the shared Package type
 internal/ecosystem/npm     package.json
 internal/ecosystem/pypi    pyproject.toml
@@ -20,6 +20,9 @@ internal/semver/       parse and bump versions
 internal/commits/      parse Conventional Commits, choose a bump
 internal/gitlog/       read commits and tags for one package
 internal/release/      plan each package's next version and render release notes
+internal/prepare/      write versions and changelogs, optionally commit and tag
+internal/textedit/     change one value in JSON, TOML or Python without reformatting
+internal/testutil/     throwaway git repositories for tests
 internal/scan/         secret detection rules and file scanner
 testdata/              fixture repositories used by tests
 ```
@@ -44,7 +47,14 @@ type Packer interface {
 }
 ```
 
-Later milestones add `SetVersion` and `Publish` the same way. Adding a new
+The second is `Versioner` (`SetVersion`). Go does not implement it, because a Go
+version is only a tag. Milestone 4 adds `Publisher` the same way.
+
+## Release flow
+
+```
+sealtag plan -> sealtag prepare --commit -> git push --follow-tags -> CI: sealtag publish
+``` Adding a new
 registry means adding one package that implements the interface. Nothing else changes.
 
 ## Data flow

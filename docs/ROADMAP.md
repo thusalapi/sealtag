@@ -20,14 +20,15 @@ Each milestone ends with something that works end to end and can be shown to som
 - [x] Go: module zip rules via golang.org/x/mod/zip, limited to git-tracked files
 - [x] `check` command: file list plus secret scan plus size warnings
 
-## Milestone 3: Versions and changelogs (in progress)
+## Milestone 3: Versions and changelogs (done)
 
 - [x] Read Conventional Commits since each package's last tag (ADR 0006)
 - [x] Decide the bump automatically (fix = patch, feat = minor, breaking = major)
-- [ ] Write the new version into each manifest
+- [x] Write the new version into each manifest, keeping formatting
 - [x] `changelog` command prints release notes
-- [ ] Write release notes into `CHANGELOG.md`
-- [ ] Read dynamic Python versions (for example hatch `[tool.hatch.version]`)
+- [x] Write release notes into each package's `CHANGELOG.md`
+- [x] `prepare --commit`: release commit plus annotated tags (ADR 0007)
+- [x] Read and write dynamic Python versions (hatch `[tool.hatch.version]`)
 
 ## Milestone 4: Trusted publishing
 

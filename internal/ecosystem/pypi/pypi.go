@@ -12,7 +12,16 @@ import (
 	"github.com/BurntSushi/toml"
 
 	"github.com/thusalapi/sealtag/internal/ecosystem"
+	"github.com/thusalapi/sealtag/internal/textedit"
 )
+
+func readVersionFile(path string) (string, bool) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", false
+	}
+	return textedit.PythonVersion(data)
+}
 
 // Ecosystem implements ecosystem.Ecosystem for PyPI.
 type Ecosystem struct{}
@@ -28,6 +37,11 @@ type manifest struct {
 		Classifier []string `toml:"classifiers"`
 	} `toml:"project"`
 	Tool struct {
+		Hatch struct {
+			Version struct {
+				Path string `toml:"path"`
+			} `toml:"version"`
+		} `toml:"hatch"`
 		Poetry struct {
 			Name    string `toml:"name"`
 			Version string `toml:"version"`
@@ -56,9 +70,17 @@ func (Ecosystem) Detect(dir string) (*ecosystem.Package, error) {
 		p.Name, p.Version = m.Project.Name, m.Project.Version
 		if slices.Contains(m.Project.Dynamic, "version") {
 			p.Note = "version is dynamic (set by the build backend)"
+			if vp := m.Tool.Hatch.Version.Path; vp != "" {
+				if v, ok := readVersionFile(filepath.Join(dir, filepath.FromSlash(vp))); ok {
+					p.Version = v
+					p.Note = "version read from " + vp
+					p.VersionFile = filepath.ToSlash(filepath.Join(dir, filepath.FromSlash(vp)))
+				}
+			}
 		}
 	case m.Tool.Poetry.Name != "":
 		p.Name, p.Version = m.Tool.Poetry.Name, m.Tool.Poetry.Version
+		p.Note = "poetry"
 	default:
 		// pyproject.toml used only for tool config (ruff, black, ...).
 		return nil, nil

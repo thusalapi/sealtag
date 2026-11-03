@@ -13,6 +13,8 @@ import (
 	"github.com/thusalapi/sealtag/internal/ecosystem"
 )
 
+const noteInherited = "version inherited from workspace"
+
 // Ecosystem implements ecosystem.Ecosystem for crates.io.
 type Ecosystem struct{}
 
@@ -64,7 +66,7 @@ func (Ecosystem) Detect(dir string) (*ecosystem.Package, error) {
 			ver, root := workspaceVersion(dir)
 			p.Version = ver
 			if root != "" {
-				p.Note = "version inherited from workspace"
+				p.Note = noteInherited
 			} else {
 				p.Note = "version.workspace = true but no workspace root found"
 			}

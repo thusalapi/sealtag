@@ -62,7 +62,7 @@ func TestReadWheel(t *testing.T) {
 
 func TestDetect(t *testing.T) {
 	p, err := Ecosystem{}.Detect("../../../testdata/monorepo/py")
-	if err != nil || p == nil || p.Name != "acme-client" || p.Note == "" {
+	if err != nil || p == nil || p.Name != "acme-client" || p.Version != "0.3.0" || p.VersionFile == "" {
 		t.Fatalf("got %+v, %v", p, err)
 	}
 	if p, _ := (Ecosystem{}).Detect("../../../testdata/monorepo/tools"); p != nil {
