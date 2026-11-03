@@ -1,0 +1,145 @@
+package cli
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/spf13/cobra"
+
+	"github.com/thusalapi/sealtag/internal/detect"
+	"github.com/thusalapi/sealtag/internal/ecosystem"
+	"github.com/thusalapi/sealtag/internal/gitlog"
+	"github.com/thusalapi/sealtag/internal/oidc"
+	"github.com/thusalapi/sealtag/internal/release"
+	"github.com/thusalapi/sealtag/internal/scan"
+	"github.com/thusalapi/sealtag/internal/semver"
+)
+
+// longLivedTokenVars are environment variables that usually hold a long-lived
+// registry token. Their presence means the workflow is not using trusted publishing.
+var longLivedTokenVars = []string{"NPM_TOKEN", "NODE_AUTH_TOKEN", "CARGO_REGISTRY_TOKEN", "TWINE_PASSWORD", "UV_PUBLISH_TOKEN", "PYPI_TOKEN", "PYPI_API_TOKEN"}
+
+// ErrLongLivedToken is returned when a stored token is found and not explicitly allowed.
+var ErrLongLivedToken = errors.New("long-lived registry token found in the environment")
+
+// Target is one package release found at HEAD.
+type Target struct {
+	Package ecosystem.Package `json:"package"`
+	Tag     string            `json:"tag"`
+}
+
+func newPublishCmd(opts *options) *cobra.Command {
+	var dryRun, allowToken bool
+	cmd := &cobra.Command{
+		Use:   "publish",
+		Short: "Publish the packages whose release tags point at HEAD, using trusted publishing",
+		Long: "publish is meant to run in CI after `git push --follow-tags`. It finds the release\n" +
+			"tags on the current commit, checks that each manifest matches its tag, runs\n" +
+			"`sealtag check` on those packages, and uploads them using short-lived OIDC tokens.\n\n" +
+			"It refuses to run when a long-lived registry token is set in the environment,\n" +
+			"unless --allow-token is given.",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			if found := tokenVars(os.Getenv); len(found) > 0 && !allowToken {
+				return fmt.Errorf("%w: %s. Remove it and configure trusted publishing (see `sealtag doctor`), or pass --allow-token",
+					ErrLongLivedToken, strings.Join(found, ", "))
+			}
+			targets, err := taggedTargets(opts.dir)
+			if err != nil {
+				return err
+			}
+			log := cmd.OutOrStdout()
+			if len(targets) == 0 {
+				fmt.Fprintln(log, "No release tags point at HEAD. Nothing to publish.")
+				return nil
+			}
+			allow, err := scan.LoadAllow(opts.dir)
+			if err != nil {
+				return err
+			}
+			// Fail closed: check every package before uploading any of them, so a
+			// problem in one does not leave the release half published.
+			for _, t := range targets {
+				r := checkPackage(opts.dir, t.Package, allow)
+				if r.Status != "ok" {
+					printCheck(cmd, []PackageCheck{r}, false)
+					return fmt.Errorf("%s: %w", t.Package.Name, ErrCheckFailed)
+				}
+			}
+			popts := ecosystem.PublishOptions{DryRun: dryRun, Log: log, OIDC: oidc.Client{}}
+			for _, t := range targets {
+				mode := ""
+				if dryRun {
+					mode = " (dry run)"
+				}
+				fmt.Fprintf(log, "\n==> %s %s to %s%s\n", t.Package.Name, t.Tag, t.Package.Ecosystem, mode)
+				pub, ok := detect.ByName(t.Package.Ecosystem).(ecosystem.Publisher)
+				if !ok {
+					return fmt.Errorf("%s: publishing is not supported for %s yet", t.Package.Name, t.Package.Ecosystem)
+				}
+				dir := filepath.Join(opts.dir, filepath.FromSlash(t.Package.Dir))
+				if err := pub.Publish(context.Background(), dir, t.Package, popts); err != nil {
+					return fmt.Errorf("%s: %w", t.Package.Name, err)
+				}
+			}
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "check and build everything, but do not upload")
+	cmd.Flags().BoolVar(&allowToken, "allow-token", false, "allow a long-lived registry token in the environment")
+	return cmd
+}
+
+func tokenVars(getenv func(string) string) []string {
+	var found []string
+	for _, k := range longLivedTokenVars {
+		if getenv(k) != "" {
+			found = append(found, k)
+		}
+	}
+	return found
+}
+
+// taggedTargets matches release tags on HEAD to packages, and checks that each
+// manifest agrees with its tag. A mismatch usually means the tag was created by
+// hand without running `sealtag prepare`.
+func taggedTargets(root string) ([]Target, error) {
+	tags, err := gitlog.TagsAtHead(root)
+	if err != nil {
+		return nil, err
+	}
+	pkgs, err := detect.Walk(root, detect.All())
+	if err != nil {
+		return nil, err
+	}
+	var public []ecosystem.Package
+	for _, p := range pkgs {
+		if !p.Private {
+			public = append(public, p)
+		}
+	}
+	var targets []Target
+	for _, p := range public {
+		prefix := release.TagPrefix(p, len(public) > 1)
+		for _, tag := range tags {
+			rest, ok := strings.CutPrefix(tag, prefix)
+			if !ok {
+				continue
+			}
+			tv, err := semver.Parse(rest)
+			if err != nil {
+				continue
+			}
+			if p.Ecosystem == "go" {
+				p.Version = "v" + tv.String()
+			} else if mv, err := semver.Parse(p.Version); err != nil || mv.Compare(tv) != 0 {
+				return nil, fmt.Errorf("%s: tag %s does not match the manifest version %q: run `sealtag prepare`", p.Name, tag, p.Version)
+			}
+			targets = append(targets, Target{Package: p, Tag: tag})
+		}
+	}
+	return targets, nil
+}

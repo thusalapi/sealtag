@@ -1,6 +1,12 @@
 package ecosystem
 
-import "errors"
+import (
+	"context"
+	"errors"
+	"io"
+
+	"github.com/thusalapi/sealtag/internal/oidc"
+)
 
 // File is one file that will be inside a published artifact.
 type File struct {
@@ -35,4 +41,16 @@ type Versioner interface {
 	// SetVersion writes version for the package and returns the files it changed,
 	// relative to the package directory's root (the repository root).
 	SetVersion(root string, p Package, version string) ([]string, error)
+}
+
+// PublishOptions are passed to every Publisher.
+type PublishOptions struct {
+	DryRun bool      // do everything except contacting a registry
+	Log    io.Writer // progress messages and GitHub Actions masking commands
+	OIDC   oidc.Client
+}
+
+// Publisher uploads a package with trusted publishing.
+type Publisher interface {
+	Publish(ctx context.Context, dir string, p Package, opts PublishOptions) error
 }

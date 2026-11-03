@@ -3,6 +3,23 @@
 Newest entry first. One entry per work session: what was done, what was learned,
 what is next.
 
+## 2026-11-03: Trusted publishing (milestone 4, offline part)
+
+**Done**
+- `internal/oidc`: GitHub OIDC token request, PyPI and crates.io token exchange,
+  crates.io token revocation, log masking. Tested against an `httptest` fake.
+- `Publisher` for npm, PyPI, Cargo and Go (ADR 0008).
+- `publish` command: finds release tags on HEAD, checks tags match manifests, runs
+  `check` on every package first, refuses long-lived tokens, supports `--dry-run`.
+- `doctor` command and `.github/workflows/release.yml`.
+
+**Learned**
+- PyPI uploads go to a different host (`upload.pypi.org`) from the index.
+- Go module paths with capital letters are escaped as `!` plus lower case in proxy URLs.
+
+**Next**
+- Push to GitHub and run the first real release (sealtag v0.1.0) through Actions.
+
 ## 2026-11-03: prepare command, milestone 3 done
 
 **Done**

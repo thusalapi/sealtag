@@ -116,3 +116,35 @@ func Tag(root, name, message string) error {
 	_, err := git(root, "tag", "-a", name, "-m", message)
 	return err
 }
+
+// TagsAtHead lists the tags that point at the current commit.
+func TagsAtHead(root string) ([]string, error) {
+	out, err := git(root, "tag", "--points-at", "HEAD")
+	if err != nil {
+		return nil, err
+	}
+	return strings.Fields(out), nil
+}
+
+// GitHubRepo returns "owner/name" from the origin remote, or "" when origin is not
+// a GitHub URL. It understands https and ssh remote forms.
+func GitHubRepo(root string) string {
+	out, err := git(root, "remote", "get-url", "origin")
+	if err != nil {
+		return ""
+	}
+	return ParseGitHubRemote(strings.TrimSpace(out))
+}
+
+// ParseGitHubRemote extracts "owner/name" from a GitHub remote URL.
+func ParseGitHubRemote(u string) string {
+	for _, p := range []string{"https://github.com/", "http://github.com/", "git@github.com:", "ssh://git@github.com/"} {
+		if rest, ok := strings.CutPrefix(u, p); ok {
+			rest = strings.TrimSuffix(strings.TrimSuffix(rest, "/"), ".git")
+			if strings.Count(rest, "/") == 1 {
+				return rest
+			}
+		}
+	}
+	return ""
+}

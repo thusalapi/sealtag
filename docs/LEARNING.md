@@ -92,6 +92,24 @@ A lightweight tag is just a name for a commit. An annotated tag is a full git ob
 with a tagger, date and message, and it can be signed. `git describe` and
 `git push --follow-tags` only consider annotated tags, so release tools should use them.
 
+## How the OIDC exchange works in practice
+
+1. The workflow has `permissions: id-token: write`, so GitHub sets
+   `ACTIONS_ID_TOKEN_REQUEST_URL` and `ACTIONS_ID_TOKEN_REQUEST_TOKEN`.
+2. The job calls that URL with `&audience=pypi` (or `crates.io`) and gets a signed
+   JWT. Its claims include the repository, the workflow file and the git ref.
+3. The job sends the JWT to the registry. The registry checks GitHub's signature
+   and compares the claims with the trusted publisher the maintainer configured.
+4. If they match, the registry returns an upload token that expires in minutes.
+
+The "audience" claim stops a token meant for one service being replayed to another.
+
+## Testing HTTP clients without the internet
+
+Go's `net/http/httptest` starts a real local HTTP server. sealtag's OIDC tests run a
+fake GitHub token service, PyPI and crates.io in one server, so the whole exchange,
+including error responses, is tested offline.
+
 ## To study next
 
 - Sigstore: keyless signing with short-lived certificates

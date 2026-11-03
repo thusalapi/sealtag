@@ -8,7 +8,8 @@ tested directly.
 
 ```
 cmd/sealtag/        entry point (main.go)
-internal/cli/          cobra commands: detect, plan, scan, check, changelog, prepare, version
+internal/cli/          cobra commands: detect, plan, scan, check, changelog, prepare,
+                       publish, doctor, version
 internal/ecosystem/    the Ecosystem interface and the shared Package type
 internal/ecosystem/npm     package.json
 internal/ecosystem/pypi    pyproject.toml
@@ -23,6 +24,7 @@ internal/release/      plan each package's next version and render release notes
 internal/prepare/      write versions and changelogs, optionally commit and tag
 internal/textedit/     change one value in JSON, TOML or Python without reformatting
 internal/testutil/     throwaway git repositories for tests
+internal/oidc/         GitHub OIDC tokens and registry token exchanges
 internal/scan/         secret detection rules and file scanner
 testdata/              fixture repositories used by tests
 ```
@@ -48,7 +50,7 @@ type Packer interface {
 ```
 
 The second is `Versioner` (`SetVersion`). Go does not implement it, because a Go
-version is only a tag. Milestone 4 adds `Publisher` the same way.
+version is only a tag. The third is `Publisher`, which uploads with trusted publishing (ADR 0008).
 
 ## Release flow
 
@@ -66,6 +68,6 @@ repo dir -> fileset.List -> scan.Files -> scan.Filter (allowlist) -> table or JS
 
 ## Design rules
 
-1. No network calls in detect, plan or scan. They must work offline and in tests.
+1. No network calls except in `publish`. Everything else works offline.
 2. Every command will support `--json` so CI and other tools can use the output.
 3. Fail closed: if sealtag cannot tell what will ship, it refuses to publish.

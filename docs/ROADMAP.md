@@ -30,13 +30,14 @@ Each milestone ends with something that works end to end and can be shown to som
 - [x] `prepare --commit`: release commit plus annotated tags (ADR 0007)
 - [x] Read and write dynamic Python versions (hatch `[tool.hatch.version]`)
 
-## Milestone 4: Trusted publishing
+## Milestone 4: Trusted publishing (in progress)
 
-- [ ] Read the GitHub Actions OIDC token
-- [ ] Exchange it with PyPI, npm and crates.io for short-lived publish tokens
-- [ ] Publish to each registry
-- [ ] Refuse to run with a long-lived token unless `--allow-token` is passed
-- [ ] `doctor` command that explains how to configure trusted publishing on each registry
+- [x] Read the GitHub Actions OIDC token
+- [x] Exchange it with PyPI and crates.io (npm does its own exchange) (ADR 0008)
+- [x] `publish` command for all four ecosystems, with `--dry-run`
+- [ ] First real release through GitHub Actions
+- [x] Refuse to run with a long-lived token unless `--allow-token` is passed
+- [x] `doctor` command that explains how to configure trusted publishing on each registry
 
 ## Milestone 5: Provenance and clean-room testing
 

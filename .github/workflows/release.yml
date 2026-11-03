@@ -1,0 +1,28 @@
+# Publishes every package whose release tag was pushed, using trusted publishing.
+# No registry tokens are stored in this repository's secrets.
+name: Release
+
+on:
+  push:
+    tags: ["v*", "*@v*", "*/v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # A protected environment can require a manual approval before publishing.
+    environment: release
+    permissions:
+      contents: read
+      id-token: write # lets the job request OIDC tokens for trusted publishing
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags and history are needed to match tags to packages
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Publish
+        run: go run ./cmd/sealtag publish

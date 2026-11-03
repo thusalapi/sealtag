@@ -12,3 +12,4 @@ for each decision. Never edit an accepted decision. Write a new one that replace
 | [0005](0005-build-python-packages-to-list-files.md) | Build Python packages to learn what they contain | accepted |
 | [0006](0006-release-tag-names.md) | Release tag names | accepted |
 | [0007](0007-prepare-then-tag-then-publish.md) | Separate prepare, tag and publish | accepted |
+| [0008](0008-trusted-publishing-only.md) | Publish with trusted publishing only | accepted |
