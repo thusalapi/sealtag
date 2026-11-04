@@ -23,11 +23,11 @@ func TestVerifyRealNpm(t *testing.T) {
 	os.WriteFile(filepath.Join(dir, "lib", "impl.js"), []byte("module.exports = 42\n"), 0o644)
 	p := ecosystem.Package{Ecosystem: "npm", Name: "sealtag-demo"}
 
-	if err := (Ecosystem{}).Verify(context.Background(), dir, p, io.Discard); err == nil {
+	if err := (Ecosystem{}).Verify(context.Background(), dir, p, ecosystem.VerifyOptions{Log: io.Discard}); err == nil {
 		t.Fatal("verify should fail: lib/ is not in \"files\"")
 	}
 	os.WriteFile(filepath.Join(dir, "package.json"), []byte(`{"name":"sealtag-demo","version":"1.0.0","main":"index.js","files":["index.js","lib"]}`), 0o644)
-	if err := (Ecosystem{}).Verify(context.Background(), dir, p, io.Discard); err != nil {
+	if err := (Ecosystem{}).Verify(context.Background(), dir, p, ecosystem.VerifyOptions{Log: io.Discard}); err != nil {
 		t.Errorf("verify should pass: %v", err)
 	}
 }

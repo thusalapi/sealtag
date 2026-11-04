@@ -31,11 +31,11 @@ func TestVerifyRealBuild(t *testing.T) {
 	os.WriteFile(filepath.Join(dir, "pyproject.toml"), []byte("[project]\nname = \"demo\"\nversion = \"1.0.0\"\n\n[build-system]\nrequires = [\"hatchling\"]\nbuild-backend = \"hatchling.build\"\n"), 0o644)
 	os.WriteFile(filepath.Join(dir, "src", "demo", "__init__.py"), []byte("from . import missing\n"), 0o644)
 	p := ecosystem.Package{Ecosystem: "pypi", Name: "demo"}
-	if err := (Ecosystem{}).Verify(context.Background(), dir, p, io.Discard); err == nil {
+	if err := (Ecosystem{}).Verify(context.Background(), dir, p, ecosystem.VerifyOptions{Log: io.Discard}); err == nil {
 		t.Fatal("import of a missing submodule should fail")
 	}
 	os.WriteFile(filepath.Join(dir, "src", "demo", "missing.py"), []byte("X = 1\n"), 0o644)
-	if err := (Ecosystem{}).Verify(context.Background(), dir, p, io.Discard); err != nil {
+	if err := (Ecosystem{}).Verify(context.Background(), dir, p, ecosystem.VerifyOptions{Log: io.Discard}); err != nil {
 		t.Errorf("verify should pass: %v", err)
 	}
 }

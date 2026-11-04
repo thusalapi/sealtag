@@ -22,3 +22,14 @@ jobs:
       - run: go vet ./...
       - run: go test ./...
       - run: go run ./cmd/sealtag scan
+
+  # Runs the clean-room install of every fixture package inside containers.
+  container-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: go run ./cmd/sealtag verify --container --verbose -C testdata/monorepo

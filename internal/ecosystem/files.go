@@ -60,5 +60,14 @@ type Publisher interface {
 // repository but breaks once published, for example because a needed file is
 // excluded or a generated file is missing.
 type Verifier interface {
-	Verify(ctx context.Context, dir string, p Package, log io.Writer) error
+	Verify(ctx context.Context, dir string, p Package, opts VerifyOptions) error
+}
+
+// VerifyOptions control where the clean-room install runs.
+type VerifyOptions struct {
+	Log io.Writer
+	// Container runs the install and load steps in a fresh container instead of a
+	// temporary folder on the host. A container also hides the host's caches and
+	// globally installed packages, so "it only works on my machine" cannot pass.
+	Container bool
 }

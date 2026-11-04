@@ -77,7 +77,7 @@ func newPublishCmd(opts *options) *cobra.Command {
 			if !skipVerify {
 				for _, t := range targets {
 					fmt.Fprintf(log, "verifying %s in a clean environment\n", t.Package.Name)
-					if r := verifyPackage(opts.dir, t.Package, log); r.Status == "failed" {
+					if r := verifyPackage(opts.dir, t.Package, ecosystem.VerifyOptions{Log: log}); r.Status == "failed" {
 						return fmt.Errorf("%s: %w: %s", t.Package.Name, ErrVerifyFailed, r.Error)
 					}
 				}
