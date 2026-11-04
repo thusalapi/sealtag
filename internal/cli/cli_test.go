@@ -18,9 +18,9 @@ import (
 func run(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 	root := NewRoot()
-	var out bytes.Buffer
+	var out, stderr bytes.Buffer
 	root.SetOut(&out)
-	root.SetErr(&out)
+	root.SetErr(&stderr)
 	root.SetArgs(args)
 	err := root.Execute()
 	return out.String(), err
@@ -153,5 +153,23 @@ func TestPrepareCommitAndTag(t *testing.T) {
 	json.Unmarshal([]byte(out), &p)
 	if p.Releases[0].Next != "" || p.Releases[0].LastTag != "v1.1.0" {
 		t.Errorf("after release: %+v", p.Releases[0])
+	}
+}
+
+// TestResultsGoToStdout guards against cobra's default of printing to stderr.
+func TestResultsGoToStdout(t *testing.T) {
+	root := NewRoot()
+	var stdout, stderr bytes.Buffer
+	root.SetOut(&stdout)
+	root.SetErr(&stderr)
+	root.SetArgs([]string{"version"})
+	if err := root.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(stdout.String(), "sealtag") || stderr.Len() != 0 {
+		t.Errorf("stdout=%q stderr=%q", stdout.String(), stderr.String())
+	}
+	if NewRoot().OutOrStderr() != os.Stdout {
+		t.Error("the default output must be stdout")
 	}
 }

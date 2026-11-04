@@ -15,12 +15,19 @@ what is next.
 - Removed Claude co-author trailers from history (rewrite with identical trees, so
   Go checksums for v0.1.0 and v0.1.1 still match).
 
+- Released v0.2.0. `gh attestation verify` confirms the downloads were built by
+  `release.yml` at `refs/tags/v0.2.0`.
+
 **Learned**
+- The v0.2.0 release page had no notes: cobra's `cmd.Print` writes to **stderr**
+  by default, so `sealtag notes > notes.md` captured nothing. Every command printed
+  its results to stderr. The tests missed it because they captured both streams in
+  one buffer. Fixed with `root.SetOut(os.Stdout)` and a test that keeps them apart.
 - Rewriting commit messages keeps a Go module version valid as long as the file
   tree is unchanged, because the checksum covers file contents, not commit IDs.
 
 **Next**
-- Release v0.2.0 and verify a download with `gh attestation verify`.
+- Container mode for `verify`. PyPI attestations. Launch post.
 
 ## 2026-11-04: First public release
 

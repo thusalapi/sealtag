@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"os"
 	"runtime/debug"
 
 	"github.com/spf13/cobra"
@@ -32,6 +33,9 @@ func NewRoot() *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
+	// cobra's cmd.Print* helpers write to stderr unless an output is set. Results
+	// belong on stdout, so `sealtag notes > notes.md` captures them.
+	root.SetOut(os.Stdout)
 	root.PersistentFlags().StringVarP(&opts.dir, "dir", "C", ".", "repository root to work in")
 	root.PersistentFlags().BoolVar(&opts.json, "json", false, "print machine-readable JSON")
 	root.AddCommand(newDetectCmd(opts), newPlanCmd(opts), newScanCmd(opts), newCheckCmd(opts), newChangelogCmd(opts), newPrepareCmd(opts), newPublishCmd(opts), newDoctorCmd(opts), newVerifyCmd(opts), newNotesCmd(opts), newVersionCmd())
