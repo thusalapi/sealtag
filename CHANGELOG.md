@@ -2,6 +2,12 @@
 
 All notable changes to this package are documented here. This file is updated by sealtag.
 
+## github.com/thusalapi/sealtag v0.2.1 (2026-11-04)
+
+### Fixes
+
+- print command results to stdout instead of stderr (e594314)
+
 ## github.com/thusalapi/sealtag v0.2.0 (2026-11-04)
 
 ### Features
