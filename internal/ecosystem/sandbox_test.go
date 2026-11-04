@@ -30,3 +30,13 @@ func TestContainerArgs(t *testing.T) {
 		t.Errorf("should run as the current user: %q", got)
 	}
 }
+
+func TestContainerArgsAbsoluteMount(t *testing.T) {
+	s := Sandbox{Root: "rel/dir", Image: "img", Opts: VerifyOptions{Container: true}}
+	args := s.ContainerArgs(".", "true")
+	mount := args[3]
+	host := strings.TrimSuffix(mount, ":/work")
+	if !filepath.IsAbs(host) || args[5] != "/work" {
+		t.Errorf("mount %q workdir %q", mount, args[5])
+	}
+}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"runtime"
 )
@@ -32,7 +33,7 @@ func Engine() (string, error) {
 // Path returns how a file under Root is named inside the sandbox.
 func (s Sandbox) Path(rel string) string {
 	if s.Opts.Container {
-		return "/work/" + filepath.ToSlash(rel)
+		return path.Join("/work", filepath.ToSlash(rel))
 	}
 	return filepath.Join(s.Root, filepath.FromSlash(rel))
 }
@@ -55,7 +56,13 @@ func (s Sandbox) Run(ctx context.Context, rel, name string, args ...string) erro
 // empty caches. Commands run as the current user so files written into the
 // mounted folder are not owned by root on Linux.
 func (s Sandbox) ContainerArgs(rel, name string, args ...string) []string {
-	out := []string{"run", "--rm", "-v", s.Root + ":/work", "-w", s.Path(rel), "-e", "HOME=/tmp"}
+	// Docker treats a relative path as a named volume, so the mount needs an
+	// absolute path.
+	root, err := filepath.Abs(s.Root)
+	if err != nil {
+		root = s.Root
+	}
+	out := []string{"run", "--rm", "-v", root + ":/work", "-w", s.Path(rel), "-e", "HOME=/tmp"}
 	if runtime.GOOS != "windows" {
 		out = append(out, "--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()))
 	}
