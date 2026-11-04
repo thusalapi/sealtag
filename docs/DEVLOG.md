@@ -19,6 +19,14 @@ what is next.
 **Learned**
 - Tagging a tag (`git tag v0 v0.1.0`) creates a nested tag. A floating tag must
   point at the commit: `v0.1.0^{}`.
+- Pushing the floating `v0` tag started a second release run, which published the
+  v0.1.1 tag on the same commit again. Harmless for Go, but npm or PyPI would reject
+  a duplicate upload. `publish --tag "$GITHUB_REF_NAME"` now limits each run to the
+  tag that triggered it.
+- GitHub creates no push event when more than three tags are pushed at once.
+- Windows Defender flagged a locally built `sealtag.exe` in %TEMP% as unwanted
+  software, a known false positive for unsigned Go binaries. `go run` avoids it.
+  Signed release binaries would fix it properly.
 
 **Next**
 - Reserve the name on npm, PyPI and crates.io.

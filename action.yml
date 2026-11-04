@@ -8,7 +8,7 @@ inputs:
     description: The sealtag command to run, for example "publish" or "check".
     default: publish
   args:
-    description: Extra arguments for the command.
+    description: Extra arguments for the command. For publish, sealtag adds --tag with the triggering tag automatically.
     default: ""
   version:
     description: sealtag version to install (a tag such as v0.1.0, or "latest").
@@ -25,4 +25,9 @@ runs:
       run: go install "github.com/thusalapi/sealtag/cmd/sealtag@${{ inputs.version }}"
     - name: Run sealtag ${{ inputs.command }}
       shell: bash
-      run: sealtag ${{ inputs.command }} ${{ inputs.args }}
+      run: |
+        extra=""
+        if [ "${{ inputs.command }}" = "publish" ] && [ "$GITHUB_REF_TYPE" = "tag" ]; then
+          extra="--tag $GITHUB_REF_NAME"
+        fi
+        sealtag ${{ inputs.command }} $extra ${{ inputs.args }}

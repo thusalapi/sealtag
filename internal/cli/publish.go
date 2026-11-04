@@ -34,6 +34,7 @@ type Target struct {
 
 func newPublishCmd(opts *options) *cobra.Command {
 	var dryRun, allowToken, skipVerify bool
+	var onlyTag string
 	cmd := &cobra.Command{
 		Use:   "publish",
 		Short: "Publish the packages whose release tags point at HEAD, using trusted publishing",
@@ -50,6 +51,9 @@ func newPublishCmd(opts *options) *cobra.Command {
 			targets, err := taggedTargets(opts.dir)
 			if err != nil {
 				return err
+			}
+			if onlyTag != "" {
+				targets = filterTag(targets, onlyTag)
 			}
 			log := cmd.OutOrStdout()
 			if len(targets) == 0 {
@@ -98,6 +102,7 @@ func newPublishCmd(opts *options) *cobra.Command {
 	}
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "check and build everything, but do not upload")
 	cmd.Flags().BoolVar(&allowToken, "allow-token", false, "allow a long-lived registry token in the environment")
+	cmd.Flags().StringVar(&onlyTag, "tag", "", "publish only the package for this tag (in CI: the tag that triggered the run)")
 	cmd.Flags().BoolVar(&skipVerify, "skip-verify", false, "do not install and load packages in a clean environment first")
 	return cmd
 }
@@ -151,4 +156,17 @@ func taggedTargets(root string) ([]Target, error) {
 		}
 	}
 	return targets, nil
+}
+
+// filterTag keeps only the target for one tag. Without it, a run triggered by one
+// tag would also publish every other release tag on the same commit, including a
+// floating tag such as v0 that points at the latest v0.x release.
+func filterTag(targets []Target, tag string) []Target {
+	var out []Target
+	for _, t := range targets {
+		if t.Tag == tag {
+			out = append(out, t)
+		}
+	}
+	return out
 }

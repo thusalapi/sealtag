@@ -101,3 +101,19 @@ func TestDoctor(t *testing.T) {
 		}
 	}
 }
+
+func TestPublishOnlyTriggeringTag(t *testing.T) {
+	r := testutil.NewRepo(t)
+	r.Commit("feat: first", map[string]string{"go.mod": "module example.com/m\n", "m.go": "package m\n"})
+	r.Git("tag", "v0.1.0")
+	r.Git("tag", "-a", "v0", "-m", "floating") // not a semver tag: never a target
+
+	out, err := run(t, "publish", "--dry-run", "--skip-verify", "--tag", "v0", "-C", r.Root)
+	if err != nil || !strings.Contains(out, "Nothing to publish") {
+		t.Errorf("--tag v0 should publish nothing: %v\n%s", err, out)
+	}
+	out, err = run(t, "publish", "--dry-run", "--skip-verify", "--tag", "v0.1.0", "-C", r.Root)
+	if err != nil || !strings.Contains(out, "v0.1.0.info") {
+		t.Errorf("--tag v0.1.0 should publish: %v\n%s", err, out)
+	}
+}

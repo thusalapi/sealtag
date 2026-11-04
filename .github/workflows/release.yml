@@ -1,5 +1,8 @@
 # Publishes every package whose release tag was pushed, using trusted publishing.
 # No registry tokens are stored in this repository's secrets.
+#
+# Note: GitHub creates no push event when more than three tags are pushed at once.
+# For larger monorepo releases, push the tags in groups of three or fewer.
 name: Release
 
 on:
@@ -25,4 +28,5 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Publish
-        run: go run ./cmd/sealtag publish
+        # --tag: publish only the package whose tag triggered this run.
+        run: go run ./cmd/sealtag publish --tag "$GITHUB_REF_NAME"
