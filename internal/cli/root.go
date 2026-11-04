@@ -3,6 +3,8 @@
 package cli
 
 import (
+	"runtime/debug"
+
 	"github.com/spf13/cobra"
 )
 
@@ -21,9 +23,12 @@ type options struct {
 func NewRoot() *cobra.Command {
 	opts := &options{}
 	root := &cobra.Command{
-		Use:           "sealtag",
-		Short:         "Publish packages to npm, PyPI, crates.io and Go safely",
-		Long:          "sealtag detects publishable packages, plans releases and checks for leaked secrets\nbefore anything is published. Publishing with trusted publishing is coming soon.",
+		Use:   "sealtag",
+		Short: "Publish packages to npm, PyPI, crates.io and Go safely",
+		Long: "sealtag releases packages to npm, PyPI, crates.io and Go from one tool.\n" +
+			"It plans versions from Conventional Commits, checks exactly what each package\n" +
+			"ships, verifies it installs cleanly, and publishes from CI with trusted\n" +
+			"publishing, so no long-lived registry token is ever stored.",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
@@ -38,7 +43,28 @@ func newVersionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print the sealtag version",
 		Run: func(cmd *cobra.Command, _ []string) {
-			cmd.Printf("sealtag %s (%s)\n", version, commit)
+			v, c := buildVersion()
+			cmd.Printf("sealtag %s (%s)\n", v, c)
 		},
 	}
+}
+
+// buildVersion prefers values set with -ldflags. A binary built with
+// `go install module@version` has none, but Go records the module version and,
+// for local builds, the git commit in the binary's build info.
+func buildVersion() (string, string) {
+	v, c := version, commit
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return v, c
+	}
+	if v == "dev" && info.Main.Version != "" && info.Main.Version != "(devel)" {
+		v = info.Main.Version
+	}
+	for _, s := range info.Settings {
+		if s.Key == "vcs.revision" && c == "none" && len(s.Value) >= 7 {
+			c = s.Value[:7]
+		}
+	}
+	return v, c
 }
