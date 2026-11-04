@@ -3,6 +3,22 @@
 Newest entry first. One entry per work session: what was done, what was learned,
 what is next.
 
+## 2026-11-04: Clean-room verify (milestone 5 starts)
+
+**Done**
+- `Verifier` for all four ecosystems and a `verify` command. `publish` runs it first.
+- Tests reproduce real breakages: an npm `"files"` list missing `lib/`, a Python
+  package importing a missing module, a Go module needing a gitignored file.
+- Tool errors now include the last lines of stderr.
+
+**Learned**
+- `verify` immediately found a bug in our own fixture: `@acme/web` declared
+  `"main": "index.js"` without shipping it.
+- `modzip.Unzip` creates read-only files, like the module cache.
+
+**Next**
+- Push to GitHub (waiting on login) and run the first release.
+
 ## 2026-11-03: Trusted publishing (milestone 4, offline part)
 
 **Done**

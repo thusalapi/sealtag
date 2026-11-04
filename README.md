@@ -26,7 +26,9 @@ but each one is configured differently.
    and picks the next version (fix = patch, feat = minor, breaking = major).
 3. **Checks** what will ship: lists the files and scans them for secrets before
    anything leaves your machine.
-4. **Publishes** from CI with trusted publishing only. It refuses to run if a
+4. **Verifies** the built package: installs it into an empty environment and loads
+   it, so a missing file breaks the release instead of breaking your users.
+5. **Publishes** from CI with trusted publishing only. It refuses to run if a
    long-lived token is present.
 
 ## Quick start
@@ -38,6 +40,7 @@ sealtag detect               # list publishable packages
 sealtag plan                 # next version of each package, from Conventional Commits
 sealtag changelog            # release notes for the pending release
 sealtag prepare --commit     # write versions + CHANGELOG.md, commit, tag
+sealtag verify               # install each built package somewhere empty and load it
 sealtag doctor               # how to set up trusted publishing per registry
 sealtag publish              # in CI: upload tagged packages with OIDC
 sealtag scan                 # look for secrets in the repository

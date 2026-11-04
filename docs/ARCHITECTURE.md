@@ -9,7 +9,7 @@ tested directly.
 ```
 cmd/sealtag/        entry point (main.go)
 internal/cli/          cobra commands: detect, plan, scan, check, changelog, prepare,
-                       publish, doctor, version
+                       publish, doctor, verify, version
 internal/ecosystem/    the Ecosystem interface and the shared Package type
 internal/ecosystem/npm     package.json
 internal/ecosystem/pypi    pyproject.toml
@@ -50,7 +50,8 @@ type Packer interface {
 ```
 
 The second is `Versioner` (`SetVersion`). Go does not implement it, because a Go
-version is only a tag. The third is `Publisher`, which uploads with trusted publishing (ADR 0008).
+version is only a tag. The third is `Publisher`, which uploads with trusted publishing (ADR 0008). The
+fourth is `Verifier`, which installs the built artifact somewhere empty and loads it.
 
 ## Release flow
 

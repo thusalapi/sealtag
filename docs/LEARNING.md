@@ -110,6 +110,18 @@ Go's `net/http/httptest` starts a real local HTTP server. sealtag's OIDC tests r
 fake GitHub token service, PyPI and crates.io in one server, so the whole exchange,
 including error responses, is tested offline.
 
+## "Works on my machine" for packages
+
+A package can pass every test in the repository and still be broken once published,
+because the tests read files straight from the source tree. Common causes:
+- npm: a folder missing from the `"files"` list.
+- Python: a module not picked up by the build backend.
+- Go: a generated file that is gitignored, so it is not in the module zip.
+
+The fix is to test the artifact, not the repository: build it, install it somewhere
+empty, and import it. For Python, `python -I` stops the current folder from being on
+the import path, so the import really comes from the installed wheel.
+
 ## To study next
 
 - Sigstore: keyless signing with short-lived certificates

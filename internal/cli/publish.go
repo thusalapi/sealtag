@@ -33,13 +33,13 @@ type Target struct {
 }
 
 func newPublishCmd(opts *options) *cobra.Command {
-	var dryRun, allowToken bool
+	var dryRun, allowToken, skipVerify bool
 	cmd := &cobra.Command{
 		Use:   "publish",
 		Short: "Publish the packages whose release tags point at HEAD, using trusted publishing",
 		Long: "publish is meant to run in CI after `git push --follow-tags`. It finds the release\n" +
 			"tags on the current commit, checks that each manifest matches its tag, runs\n" +
-			"`sealtag check` on those packages, and uploads them using short-lived OIDC tokens.\n\n" +
+			"`sealtag check` and `sealtag verify` on those packages, and uploads them using short-lived OIDC tokens.\n\n" +
 			"It refuses to run when a long-lived registry token is set in the environment,\n" +
 			"unless --allow-token is given.",
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -69,6 +69,14 @@ func newPublishCmd(opts *options) *cobra.Command {
 					return fmt.Errorf("%s: %w", t.Package.Name, ErrCheckFailed)
 				}
 			}
+			if !skipVerify {
+				for _, t := range targets {
+					fmt.Fprintf(log, "verifying %s in a clean environment\n", t.Package.Name)
+					if r := verifyPackage(opts.dir, t.Package, log); r.Status == "failed" {
+						return fmt.Errorf("%s: %w: %s", t.Package.Name, ErrVerifyFailed, r.Error)
+					}
+				}
+			}
 			popts := ecosystem.PublishOptions{DryRun: dryRun, Log: log, OIDC: oidc.Client{}}
 			for _, t := range targets {
 				mode := ""
@@ -90,6 +98,7 @@ func newPublishCmd(opts *options) *cobra.Command {
 	}
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "check and build everything, but do not upload")
 	cmd.Flags().BoolVar(&allowToken, "allow-token", false, "allow a long-lived registry token in the environment")
+	cmd.Flags().BoolVar(&skipVerify, "skip-verify", false, "do not install and load packages in a clean environment first")
 	return cmd
 }
 

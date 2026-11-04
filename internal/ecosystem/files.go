@@ -54,3 +54,11 @@ type PublishOptions struct {
 type Publisher interface {
 	Publish(ctx context.Context, dir string, p Package, opts PublishOptions) error
 }
+
+// Verifier installs a package from its built artifact into an empty, temporary
+// environment and checks that it loads. This catches a package that works in the
+// repository but breaks once published, for example because a needed file is
+// excluded or a generated file is missing.
+type Verifier interface {
+	Verify(ctx context.Context, dir string, p Package, log io.Writer) error
+}

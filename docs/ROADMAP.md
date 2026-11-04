@@ -39,10 +39,12 @@ Each milestone ends with something that works end to end and can be shown to som
 - [x] Refuse to run with a long-lived token unless `--allow-token` is passed
 - [x] `doctor` command that explains how to configure trusted publishing on each registry
 
-## Milestone 5: Provenance and clean-room testing
+## Milestone 5: Provenance and clean-room testing (in progress)
 
 - [ ] Sign artifacts and attach provenance (Sigstore, SLSA)
-- [ ] Install each built package in a clean container and run a smoke test
+- [x] `verify`: install each built package in an empty temp environment and load it
+- [x] `publish` runs `verify` before uploading (`--skip-verify` to opt out)
+- [ ] Optional container mode for verify (no host toolchain caches)
 
 ## Milestone 6: Launch
 
