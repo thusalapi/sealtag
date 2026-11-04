@@ -122,8 +122,22 @@ The fix is to test the artifact, not the repository: build it, install it somewh
 empty, and import it. For Python, `python -I` stops the current folder from being on
 the import path, so the import really comes from the installed wheel.
 
+## Provenance, SLSA and Sigstore
+
+**Provenance** is a signed statement saying "this file, with this SHA-256, was built
+by this workflow, from this commit". **SLSA** is the standard format for it.
+**Sigstore** signs it without long-lived keys: the CI job proves its identity with
+OIDC (the same idea as trusted publishing), gets a signing certificate that lasts
+ten minutes, and the signature is recorded in a public log (Rekor). Anyone can later
+check that a download came from the real workflow, not from a hacked laptop.
+
+## Reproducible builds
+
+Two builds of the same source should give the same bytes. Things that break this:
+timestamps (in tar, zip and gzip headers), file order, user names, and absolute
+paths compiled into the binary. sealtag fixes each one: `touch` to the commit time,
+sorted entries, `--owner=0`, `gzip -n`, `zip -X`, and Go's `-trimpath`.
+
 ## To study next
 
-- Sigstore: keyless signing with short-lived certificates
-- SLSA provenance: a signed record of how and where an artifact was built
 - How `npm pack` decides which files to include (`files`, `.npmignore`)

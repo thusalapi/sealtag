@@ -148,3 +148,12 @@ func ParseGitHubRemote(u string) string {
 	}
 	return ""
 }
+
+// AllTags lists every tag in the repository.
+func AllTags(root string) ([]string, error) {
+	out, err := git(root, "tag", "--list")
+	if err != nil {
+		return nil, err
+	}
+	return strings.Fields(out), nil
+}

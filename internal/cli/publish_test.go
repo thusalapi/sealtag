@@ -117,3 +117,29 @@ func TestPublishOnlyTriggeringTag(t *testing.T) {
 		t.Errorf("--tag v0.1.0 should publish: %v\n%s", err, out)
 	}
 }
+
+func TestNotesCommand(t *testing.T) {
+	r := testutil.NewRepo(t)
+	r.Commit("chore: init", map[string]string{
+		"web/package.json": "{\n  \"name\": \"@x/web\",\n  \"version\": \"1.0.0\"\n}\n",
+		"sdk/go.mod":       "module example.com/sdk\n",
+	})
+	r.Git("tag", "@x/web@v1.0.0")
+	r.Git("tag", "sdk/v0.1.0")
+	r.Commit("feat: web feature", map[string]string{"web/a.js": "1"})
+	r.Commit("fix: sdk fix", map[string]string{"sdk/s.go": "package sdk\n"})
+	if out, err := run(t, "prepare", "--commit", "--date", "2026-11-04", "-C", r.Root); err != nil {
+		t.Fatalf("%v\n%s", err, out)
+	}
+	out, err := run(t, "notes", "--tag", "@x/web@v1.1.0", "-C", r.Root)
+	if err != nil || !strings.Contains(out, "- web feature") || strings.Contains(out, "sdk fix") {
+		t.Errorf("web notes: %v\n%s", err, out)
+	}
+	out, err = run(t, "notes", "--tag", "sdk/v0.1.1", "-C", r.Root)
+	if err != nil || !strings.Contains(out, "- sdk fix") {
+		t.Errorf("sdk notes: %v\n%s", err, out)
+	}
+	if _, err := run(t, "notes", "--tag", "nope", "-C", r.Root); err == nil {
+		t.Error("unknown tag should fail")
+	}
+}

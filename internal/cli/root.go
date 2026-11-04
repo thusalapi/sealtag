@@ -34,7 +34,7 @@ func NewRoot() *cobra.Command {
 	}
 	root.PersistentFlags().StringVarP(&opts.dir, "dir", "C", ".", "repository root to work in")
 	root.PersistentFlags().BoolVar(&opts.json, "json", false, "print machine-readable JSON")
-	root.AddCommand(newDetectCmd(opts), newPlanCmd(opts), newScanCmd(opts), newCheckCmd(opts), newChangelogCmd(opts), newPrepareCmd(opts), newPublishCmd(opts), newDoctorCmd(opts), newVerifyCmd(opts), newVersionCmd())
+	root.AddCommand(newDetectCmd(opts), newPlanCmd(opts), newScanCmd(opts), newCheckCmd(opts), newChangelogCmd(opts), newPrepareCmd(opts), newPublishCmd(opts), newDoctorCmd(opts), newVerifyCmd(opts), newNotesCmd(opts), newVersionCmd())
 	return root
 }
 

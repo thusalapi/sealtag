@@ -3,6 +3,25 @@
 Newest entry first. One entry per work session: what was done, what was learned,
 what is next.
 
+## 2026-11-04: Signed, reproducible binaries
+
+**Done**
+- `scripts/dist.sh`: archives for 6 platforms and `checksums.txt`.
+- Made the archives reproducible. The first version was not: two builds of the same
+  commit had different checksums because of tar, gzip and zip timestamps.
+- Release workflow: a `binaries` job attests every file with `actions/attest` and
+  creates the GitHub release with text from the new `sealtag notes` command.
+- `notes` command and `release.NotesFromChangelog`.
+- Removed Claude co-author trailers from history (rewrite with identical trees, so
+  Go checksums for v0.1.0 and v0.1.1 still match).
+
+**Learned**
+- Rewriting commit messages keeps a Go module version valid as long as the file
+  tree is unchanged, because the checksum covers file contents, not commit IDs.
+
+**Next**
+- Release v0.2.0 and verify a download with `gh attestation verify`.
+
 ## 2026-11-04: First public release
 
 **Done**

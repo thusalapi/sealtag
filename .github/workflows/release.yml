@@ -30,3 +30,47 @@ jobs:
       - name: Publish
         # --tag: publish only the package whose tag triggered this run.
         run: go run ./cmd/sealtag publish --tag "$GITHUB_REF_NAME"
+
+  # sealtag's own binaries, for people who do not use `go install`.
+  binaries:
+    needs: publish
+    # Only full version tags (v1.2.3), not the floating v0 tag.
+    if: contains(github.ref_name, '.')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # create the GitHub release and upload files
+      id-token: write     # sign the provenance with a Sigstore certificate
+      attestations: write # store the attestation on GitHub
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Build archives
+        run: scripts/dist.sh "$GITHUB_REF_NAME"
+      - name: Attest build provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: dist/*
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          go run ./cmd/sealtag notes --tag "$GITHUB_REF_NAME" > notes.md
+          cat >> notes.md <<'MD'
+
+          ### Verify a download
+
+          Every file is attested with signed SLSA build provenance:
+
+          ```
+          gh attestation verify sealtag_<version>_<os>_<arch>.tar.gz --repo thusalapi/sealtag
+          ```
+          MD
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* --title "sealtag $GITHUB_REF_NAME" --notes-file notes.md --verify-tag
+          fi

@@ -13,3 +13,4 @@ for each decision. Never edit an accepted decision. Write a new one that replace
 | [0006](0006-release-tag-names.md) | Release tag names | accepted |
 | [0007](0007-prepare-then-tag-then-publish.md) | Separate prepare, tag and publish | accepted |
 | [0008](0008-trusted-publishing-only.md) | Publish with trusted publishing only | accepted |
+| [0009](0009-reproducible-attested-binaries.md) | Reproducible, attested release binaries | accepted |

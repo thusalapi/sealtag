@@ -41,7 +41,9 @@ Each milestone ends with something that works end to end and can be shown to som
 
 ## Milestone 5: Provenance and clean-room testing (in progress)
 
-- [ ] Sign artifacts and attach provenance (Sigstore, SLSA)
+- [x] sealtag's own binaries: reproducible builds with signed SLSA provenance (ADR 0009)
+- [x] `notes` command: release text from CHANGELOG.md
+- [ ] Provenance for packages sealtag publishes (npm has it built in. PyPI attestations next)
 - [x] `verify`: install each built package in an empty temp environment and load it
 - [x] `publish` runs `verify` before uploading (`--skip-verify` to opt out)
 - [ ] Optional container mode for verify (no host toolchain caches)

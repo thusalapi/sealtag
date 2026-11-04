@@ -30,6 +30,7 @@ var ErrLongLivedToken = errors.New("long-lived registry token found in the envir
 type Target struct {
 	Package ecosystem.Package `json:"package"`
 	Tag     string            `json:"tag"`
+	Version string            `json:"version"` // as written in the changelog heading
 }
 
 func newPublishCmd(opts *options) *cobra.Command {
@@ -125,6 +126,20 @@ func taggedTargets(root string) ([]Target, error) {
 	if err != nil {
 		return nil, err
 	}
+	return matchTags(root, tags, true)
+}
+
+// taggedTargetsAll matches every tag in the repository, without the manifest check
+// (an old tag's version is naturally different from today's manifest).
+func taggedTargetsAll(root string) ([]Target, error) {
+	tags, err := gitlog.AllTags(root)
+	if err != nil {
+		return nil, err
+	}
+	return matchTags(root, tags, false)
+}
+
+func matchTags(root string, tags []string, checkManifest bool) ([]Target, error) {
 	pkgs, err := detect.Walk(root, detect.All())
 	if err != nil {
 		return nil, err
@@ -147,12 +162,16 @@ func taggedTargets(root string) ([]Target, error) {
 			if err != nil {
 				continue
 			}
+			t := Target{Package: p, Tag: tag, Version: tv.String()}
 			if p.Ecosystem == "go" {
-				p.Version = "v" + tv.String()
-			} else if mv, err := semver.Parse(p.Version); err != nil || mv.Compare(tv) != 0 {
-				return nil, fmt.Errorf("%s: tag %s does not match the manifest version %q: run `sealtag prepare`", p.Name, tag, p.Version)
+				t.Version = "v" + tv.String()
+				t.Package.Version = t.Version
+			} else if checkManifest {
+				if mv, err := semver.Parse(p.Version); err != nil || mv.Compare(tv) != 0 {
+					return nil, fmt.Errorf("%s: tag %s does not match the manifest version %q: run `sealtag prepare`", p.Name, tag, p.Version)
+				}
 			}
-			targets = append(targets, Target{Package: p, Tag: tag})
+			targets = append(targets, t)
 		}
 	}
 	return targets, nil

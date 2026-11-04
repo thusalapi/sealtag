@@ -73,16 +73,34 @@ sealtag prepare --commit     # bump versions, write CHANGELOG.md, commit, tag
 git push --follow-tags       # CI checks, verifies and publishes
 ```
 
-## Quick start
+## Install
+
+Download an archive for your platform from the
+[releases page](https://github.com/thusalapi/sealtag/releases), or use Go:
 
 ```bash
 go install github.com/thusalapi/sealtag/cmd/sealtag@latest
+```
+
+Every release file has signed build provenance. Check a download before using it:
+
+```bash
+gh attestation verify sealtag_0.2.0_linux_amd64.tar.gz --repo thusalapi/sealtag
+```
+
+Builds are reproducible: running `scripts/dist.sh vX.Y.Z` on the tagged commit gives
+byte-identical archives.
+
+## Quick start
+
+```bash
 
 sealtag detect               # list publishable packages
 sealtag plan                 # next version of each package, from Conventional Commits
 sealtag changelog            # release notes for the pending release
 sealtag prepare --commit     # write versions + CHANGELOG.md, commit, tag
 sealtag verify               # install each built package somewhere empty and load it
+sealtag notes --tag v1.2.0   # release notes for a tag, from CHANGELOG.md
 sealtag doctor               # how to set up trusted publishing per registry
 sealtag publish              # in CI: upload tagged packages with OIDC
 sealtag scan                 # look for secrets in the repository
