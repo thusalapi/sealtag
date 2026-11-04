@@ -30,12 +30,12 @@ Each milestone ends with something that works end to end and can be shown to som
 - [x] `prepare --commit`: release commit plus annotated tags (ADR 0007)
 - [x] Read and write dynamic Python versions (hatch `[tool.hatch.version]`)
 
-## Milestone 4: Trusted publishing (in progress)
+## Milestone 4: Trusted publishing (done)
 
 - [x] Read the GitHub Actions OIDC token
 - [x] Exchange it with PyPI and crates.io (npm does its own exchange) (ADR 0008)
 - [x] `publish` command for all four ecosystems, with `--dry-run`
-- [ ] First real release through GitHub Actions
+- [x] First real release through GitHub Actions: sealtag v0.1.0 released itself on 2026-11-04
 - [x] Refuse to run with a long-lived token unless `--allow-token` is passed
 - [x] `doctor` command that explains how to configure trusted publishing on each registry
 
@@ -49,6 +49,7 @@ Each milestone ends with something that works end to end and can be shown to som
 ## Milestone 6: Launch (in progress)
 
 - [x] Reusable GitHub Action (`action.yml`, `uses: thusalapi/sealtag@v0`)
-- [ ] Release sealtag with sealtag
+- [x] Release sealtag with sealtag (v0.1.0, published to proxy.golang.org by the release workflow)
+- [x] Floating `v0` tag for the GitHub Action
 - [x] README: what it catches, Actions usage
 - [ ] Docs site and launch blog post

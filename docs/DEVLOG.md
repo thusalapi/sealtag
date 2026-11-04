@@ -3,6 +3,27 @@
 Newest entry first. One entry per work session: what was done, what was learned,
 what is next.
 
+## 2026-11-04: First public release
+
+**Done**
+- Created the public repo github.com/thusalapi/sealtag and pushed. CI passes on
+  Linux, macOS and Windows.
+- Moved workflows to actions/checkout v7 and actions/setup-go v7 (Node 20 actions
+  are deprecated on GitHub runners).
+- Released v0.1.0 with sealtag itself: `sealtag prepare --commit`, then
+  `git push --follow-tags`. The release workflow ran `check`, `verify` (go build of
+  the module zip) and `publish`, which made v0.1.0 available on proxy.golang.org.
+- `go install github.com/thusalapi/sealtag/cmd/sealtag@v0.1.0` works.
+- Fixed `sealtag version` for `go install` builds (reads Go build info).
+
+**Learned**
+- Tagging a tag (`git tag v0 v0.1.0`) creates a nested tag. A floating tag must
+  point at the commit: `v0.1.0^{}`.
+
+**Next**
+- Reserve the name on npm, PyPI and crates.io.
+- Launch blog post. Container mode for `verify`.
+
 ## 2026-11-04: Clean-room verify (milestone 5 starts)
 
 **Done**

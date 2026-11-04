@@ -1,0 +1,70 @@
+// Package cli wires the sealtag commands together. Keep logic out of this package:
+// commands should only parse flags, call internal packages and print results.
+package cli
+
+import (
+	"runtime/debug"
+
+	"github.com/spf13/cobra"
+)
+
+// Set at build time with -ldflags "-X github.com/thusalapi/sealtag/internal/cli.version=..."
+var (
+	version = "dev"
+	commit  = "none"
+)
+
+type options struct {
+	dir  string
+	json bool
+}
+
+// NewRoot builds the root command with every subcommand attached.
+func NewRoot() *cobra.Command {
+	opts := &options{}
+	root := &cobra.Command{
+		Use:           "sealtag",
+		Short:         "Publish packages to npm, PyPI, crates.io and Go safely",
+		Long: "sealtag releases packages to npm, PyPI, crates.io and Go from one tool.\n" +
+			"It plans versions from Conventional Commits, checks exactly what each package\n" +
+			"ships, verifies it installs cleanly, and publishes from CI with trusted\n" +
+			"publishing, so no long-lived registry token is ever stored.",
+		SilenceUsage:  true,
+		SilenceErrors: true,
+	}
+	root.PersistentFlags().StringVarP(&opts.dir, "dir", "C", ".", "repository root to work in")
+	root.PersistentFlags().BoolVar(&opts.json, "json", false, "print machine-readable JSON")
+	root.AddCommand(newDetectCmd(opts), newPlanCmd(opts), newScanCmd(opts), newCheckCmd(opts), newChangelogCmd(opts), newPrepareCmd(opts), newPublishCmd(opts), newDoctorCmd(opts), newVerifyCmd(opts), newVersionCmd())
+	return root
+}
+
+func newVersionCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print the sealtag version",
+		Run: func(cmd *cobra.Command, _ []string) {
+			v, c := buildVersion()
+			cmd.Printf("sealtag %s (%s)\n", v, c)
+		},
+	}
+}
+
+// buildVersion prefers values set with -ldflags. A binary built with
+// `go install module@version` has none, but Go records the module version and,
+// for local builds, the git commit in the binary's build info.
+func buildVersion() (string, string) {
+	v, c := version, commit
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return v, c
+	}
+	if v == "dev" && info.Main.Version != "" && info.Main.Version != "(devel)" {
+		v = info.Main.Version
+	}
+	for _, s := range info.Settings {
+		if s.Key == "vcs.revision" && c == "none" && len(s.Value) >= 7 {
+			c = s.Value[:7]
+		}
+	}
+	return v, c
+}
