@@ -2,6 +2,12 @@
 
 All notable changes to this package are documented here. This file is updated by sealtag.
 
+## github.com/thusalapi/sealtag v0.1.1 (2026-11-04)
+
+### Fixes
+
+- report the module version for go install builds (ea26975)
+
 ## github.com/thusalapi/sealtag v0.1.0 (2026-11-04)
 
 ### Features
