@@ -57,7 +57,7 @@ jobs:
       contents: read
       id-token: write   # trusted publishing
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: thusalapi/sealtag@v0
