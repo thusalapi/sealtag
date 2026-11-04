@@ -2,6 +2,16 @@
 
 All notable changes to this package are documented here. This file is updated by sealtag.
 
+## github.com/thusalapi/sealtag v0.2.0 (2026-11-04)
+
+### Features
+
+- add notes command and signed, reproducible release binaries (f0f2f2c)
+
+### Fixes
+
+- publish only the tag that triggered the release run (ef065b5)
+
 ## github.com/thusalapi/sealtag v0.1.1 (2026-11-04)
 
 ### Fixes
