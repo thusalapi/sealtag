@@ -46,8 +46,9 @@ Each milestone ends with something that works end to end and can be shown to som
 - [x] `publish` runs `verify` before uploading (`--skip-verify` to opt out)
 - [ ] Optional container mode for verify (no host toolchain caches)
 
-## Milestone 6: Launch
+## Milestone 6: Launch (in progress)
 
-- [ ] Reusable GitHub Action (`uses: thusalapi/sealtag@v1`)
+- [x] Reusable GitHub Action (`action.yml`, `uses: thusalapi/sealtag@v0`)
 - [ ] Release sealtag with sealtag
+- [x] README: what it catches, Actions usage
 - [ ] Docs site and launch blog post

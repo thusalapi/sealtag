@@ -1,0 +1,28 @@
+name: sealtag
+description: Check, verify and publish packages to npm, PyPI, crates.io and Go with trusted publishing.
+branding:
+  icon: package
+  color: blue
+inputs:
+  command:
+    description: The sealtag command to run, for example "publish" or "check".
+    default: publish
+  args:
+    description: Extra arguments for the command.
+    default: ""
+  version:
+    description: sealtag version to install (a tag such as v0.1.0, or "latest").
+    default: latest
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-go@v5
+      with:
+        go-version: stable
+        cache: false
+    - name: Install sealtag
+      shell: bash
+      run: go install "github.com/thusalapi/sealtag/cmd/sealtag@${{ inputs.version }}"
+    - name: Run sealtag ${{ inputs.command }}
+      shell: bash
+      run: sealtag ${{ inputs.command }} ${{ inputs.args }}

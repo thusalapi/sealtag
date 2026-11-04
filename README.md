@@ -31,6 +31,48 @@ but each one is configured differently.
 5. **Publishes** from CI with trusted publishing only. It refuses to run if a
    long-lived token is present.
 
+## What it catches
+
+Real examples from sealtag's own tests:
+
+| Problem | What happens without sealtag | sealtag |
+|---|---|---|
+| A Python project with no `.gitignore` has a local `.env` | hatchling puts `.env` into the sdist and it is uploaded to PyPI | `check` builds the sdist, scans inside it, and fails |
+| npm `"files"` lists `index.js` but forgets `lib/` | Tests pass in the repo, but every install fails with "Cannot find module" | `verify` installs the tarball somewhere empty and fails |
+| A Go module needs a gitignored generated file | It builds locally, but `go get` users get a compile error | `verify` builds the real module zip and fails |
+| `NPM_TOKEN` is still stored in CI secrets | A stolen token can publish malware | `publish` refuses to run while it is set |
+
+## Use it in GitHub Actions
+
+```yaml
+on:
+  push:
+    tags: ["v*", "*@v*", "*/v*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write   # trusted publishing
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: thusalapi/sealtag@v0
+        with:
+          command: publish
+```
+
+Then release from your laptop:
+
+```bash
+sealtag plan                 # what would be released
+sealtag prepare --commit     # bump versions, write CHANGELOG.md, commit, tag
+git push --follow-tags       # CI checks, verifies and publishes
+```
+
 ## Quick start
 
 ```bash
