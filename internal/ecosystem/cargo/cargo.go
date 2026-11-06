@@ -87,6 +87,22 @@ func (Ecosystem) Detect(dir string) (*ecosystem.Package, error) {
 	return p, nil
 }
 
+// workspaceRoot returns the folder of the nearest Cargo.toml above or at dir that
+// declares [workspace], or "" when the crate is not in a workspace.
+func workspaceRoot(dir string) string {
+	cur := dir
+	for {
+		if m, err := load(filepath.Join(cur, "Cargo.toml")); err == nil && m.hasWorkspace {
+			return cur
+		}
+		parent := filepath.Dir(cur)
+		if parent == cur {
+			return ""
+		}
+		cur = parent
+	}
+}
+
 // workspaceVersion walks up from dir looking for [workspace.package].version.
 func workspaceVersion(dir string) (version, root string) {
 	cur := filepath.Dir(dir)

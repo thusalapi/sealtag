@@ -59,3 +59,14 @@ func TestDetectWorkspaceInheritance(t *testing.T) {
 		t.Errorf("virtual workspace root should not be a package: %+v", p)
 	}
 }
+
+func TestWorkspaceRoot(t *testing.T) {
+	core, _ := filepath.Abs("../../../testdata/monorepo/crates/core")
+	want, _ := filepath.Abs("../../../testdata/monorepo")
+	if got := workspaceRoot(core); got != want {
+		t.Errorf("workspaceRoot = %q, want %q", got, want)
+	}
+	if got := workspaceRoot(t.TempDir()); got != "" {
+		t.Errorf("no workspace: got %q", got)
+	}
+}

@@ -21,7 +21,8 @@ func TestSandboxPaths(t *testing.T) {
 func TestContainerArgs(t *testing.T) {
 	s := Sandbox{Root: "/tmp/x", Image: "node:24-slim", Env: []string{"A=1"}, Opts: VerifyOptions{Container: true}}
 	got := strings.Join(s.ContainerArgs("app", "node", "-e", "1"), " ")
-	for _, want := range []string{"run --rm -v /tmp/x:/work -w /work/app", "-e HOME=/tmp", "-e A=1", "node:24-slim node -e 1"} {
+	abs, _ := filepath.Abs("/tmp/x") // "C:\\tmp\\x" on Windows
+	for _, want := range []string{"run --rm -v " + abs + ":/work -w /work/app", "-e HOME=/tmp", "-e A=1", "node:24-slim node -e 1"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("missing %q in %q", want, got)
 		}
