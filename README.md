@@ -100,6 +100,7 @@ sealtag plan                 # next version of each package, from Conventional C
 sealtag changelog            # release notes for the pending release
 sealtag prepare --commit     # write versions + CHANGELOG.md, commit, tag
 sealtag verify               # install each built package somewhere empty and load it
+sealtag verify --container   # the same, inside fresh containers (docker or podman)
 sealtag notes --tag v1.2.0   # release notes for a tag, from CHANGELOG.md
 sealtag doctor               # how to set up trusted publishing per registry
 sealtag publish              # in CI: upload tagged packages with OIDC

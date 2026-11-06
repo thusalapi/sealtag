@@ -3,6 +3,19 @@
 Newest entry first. One entry per work session: what was done, what was learned,
 what is next.
 
+## 2026-11-04 to 11-06: verify --container
+
+**Done**
+- `ecosystem.Sandbox` runs verify steps on the host or in a container. Images:
+  `node:24-slim`, `python:3.13-slim`, `rust:1-slim`, and `golang:<go directive>`.
+- New CI job runs `verify --container` on every fixture package.
+- First CI run: 3 of 4 passed. Fixed a relative mount path, the Cargo workspace
+  root, and a Windows-only test failure (absolute paths start with `C:\`).
+
+**Blocked**
+- GitHub Actions stopped starting jobs: "account is locked due to a billing issue".
+  The final fix is tested locally on Linux and Windows but not yet in CI.
+
 ## 2026-11-04: Signed, reproducible binaries
 
 **Done**

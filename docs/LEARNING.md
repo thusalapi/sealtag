@@ -138,6 +138,20 @@ timestamps (in tar, zip and gzip headers), file order, user names, and absolute
 paths compiled into the binary. sealtag fixes each one: `touch` to the commit time,
 sorted entries, `--owner=0`, `gzip -n`, `zip -X`, and Go's `-trimpath`.
 
+## Running checks in containers
+
+`docker run --rm -v <host dir>:/work -w /work image cmd` runs one command in a
+fresh container that sees only that folder. Gotchas met while building
+`verify --container`:
+- A relative `-v` source is read as a *named volume*, not a folder. Use an
+  absolute path.
+- Containers run as root by default, so files they write into the mounted folder
+  are owned by root on Linux. `--user $(id -u):$(id -g)` avoids that, but then
+  image paths such as `/go` or `/usr/local/cargo` are not writable, so caches must
+  point at `/tmp`.
+- A Cargo workspace member needs the workspace root mounted too, because
+  `version.workspace = true` is read from the root `Cargo.toml`.
+
 ## To study next
 
 - How `npm pack` decides which files to include (`files`, `.npmignore`)
